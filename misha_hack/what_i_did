@@ -1,0 +1,241 @@
+==========================================================
+otool -tV macos_security_check
+
+macos_security_check:
+(__TEXT,__text) section
+start:
+0000000000001ca0	movl	$0x2000004, %eax
+0000000000001ca5	movl	$0x1, %edi
+0000000000001caa	movabsq	$MsgAsk, %rsi
+0000000000001cb4	movl	$CORRECT_LEN, %edx
+0000000000001cb9	syscall
+0000000000001cbb	movabsq	$USER_HASH, %rdi
+0000000000001cc5	callq	check_password
+0000000000001cca	jne	start.denied
+start.granted:
+0000000000001ccc	movabsq	$MsgCorrect, %rsi
+0000000000001cd6	movl	$CORRECT_LEN, %edx
+0000000000001cdb	jmp	start.print_msg
+start.denied:
+0000000000001cdd	movabsq	$MsgWrong, %rsi
+0000000000001ce7	movl	$WRONG_LEN, %edx
+start.print_msg:
+0000000000001cec	movl	$0x1, %edi
+0000000000001cf1	movl	$0x2000004, %eax
+0000000000001cf6	syscall
+0000000000001cf8	movl	$0x2000001, %eax
+0000000000001cfd	xorq	%rdi, %rdi
+0000000000001d00	syscall
+get_string:
+0000000000001d02	movl	$0x2000003, %eax
+0000000000001d07	movl	$0x0, %edi
+0000000000001d0c	movl	$0x400, %edx
+0000000000001d11	syscall
+0000000000001d13	retq
+check_password:
+0000000000001d14	pushq	%rbp
+0000000000001d15	movq	%rsp, %rbp
+0000000000001d18	subq	$0x110, %rsp
+0000000000001d1f	movq	%rsp, -0x8(%rbp)
+0000000000001d23	movq	%rdi, -0x10(%rbp)
+0000000000001d27	movb	$0x0, %al
+0000000000001d29	movq	%rsp, %rdi
+0000000000001d2c	movl	$BUFFER_SIZE, %ecx
+0000000000001d31	rep		stosb	%al, %es:(%rdi)
+0000000000001d33	movq	%rsp, %rsi
+0000000000001d36	callq	get_string
+0000000000001d3b	xorq	%rsp, -0x8(%rbp)
+0000000000001d3f	jne	check_password.stack_smashed
+0000000000001d41	movq	%rsp, %rsi
+0000000000001d44	movq	%rsp, %rdi
+0000000000001d47	movl	$BUFFER_SIZE, %esi
+0000000000001d4c	movl	$HASH_SEED, %edx
+0000000000001d51	callq	_MurmurHash64B
+0000000000001d56	movq	-0x10(%rbp), %rdi
+0000000000001d5a	addq	$0x110, %rsp
+0000000000001d61	popq	%rbp
+0000000000001d62	xorq	%rdi, %rax
+0000000000001d65	retq
+check_password.stack_smashed:
+0000000000001d66	movl	$0x2000001, %eax
+0000000000001d6b	movl	$0xa, %edi
+0000000000001d70	syscall
+0000000000001d72	nop
+0000000000001d73	nop
+0000000000001d74	nop
+0000000000001d75	nop
+0000000000001d76	nop
+0000000000001d77	nop
+0000000000001d78	nop
+0000000000001d79	nop
+0000000000001d7a	nop
+0000000000001d7b	nop
+0000000000001d7c	nop
+0000000000001d7d	nop
+0000000000001d7e	nop
+0000000000001d7f	nop
+_MurmurHash64B:
+0000000000001d80	pushq	%rbp
+0000000000001d81	movq	%rsp, %rbp
+0000000000001d84	movq	%rdi, -0x8(%rbp)
+0000000000001d88	movl	%esi, -0xc(%rbp)
+0000000000001d8b	movl	%edx, -0x10(%rbp)
+0000000000001d8e	movl	$0x5bd1e995, -0x14(%rbp)
+0000000000001d95	movl	$0x18, -0x18(%rbp)
+0000000000001d9c	movl	-0x10(%rbp), %edx
+0000000000001d9f	xorl	-0xc(%rbp), %edx
+0000000000001da2	movl	%edx, -0x1c(%rbp)
+0000000000001da5	movl	$0x0, -0x20(%rbp)
+0000000000001dac	movq	-0x8(%rbp), %rdi
+0000000000001db0	movq	%rdi, -0x28(%rbp)
+0000000000001db4	cmpl	$0x8, -0xc(%rbp)
+0000000000001db8	jl	0x1e63
+0000000000001dbe	movq	-0x28(%rbp), %rax
+0000000000001dc2	movq	%rax, %rcx
+0000000000001dc5	addq	$0x4, %rcx
+0000000000001dc9	movq	%rcx, -0x28(%rbp)
+0000000000001dcd	movl	(%rax), %edx
+0000000000001dcf	movl	%edx, -0x2c(%rbp)
+0000000000001dd2	imull	$0x5bd1e995, -0x2c(%rbp), %edx
+0000000000001dd9	movl	%edx, -0x2c(%rbp)
+0000000000001ddc	movl	-0x2c(%rbp), %edx
+0000000000001ddf	shrl	$0x18, %edx
+0000000000001de2	xorl	-0x2c(%rbp), %edx
+0000000000001de5	movl	%edx, -0x2c(%rbp)
+0000000000001de8	imull	$0x5bd1e995, -0x2c(%rbp), %edx
+0000000000001def	movl	%edx, -0x2c(%rbp)
+0000000000001df2	imull	$0x5bd1e995, -0x1c(%rbp), %edx
+0000000000001df9	movl	%edx, -0x1c(%rbp)
+0000000000001dfc	movl	-0x2c(%rbp), %edx
+0000000000001dff	xorl	-0x1c(%rbp), %edx
+0000000000001e02	movl	%edx, -0x1c(%rbp)
+0000000000001e05	movl	-0xc(%rbp), %edx
+0000000000001e08	subl	$0x4, %edx
+0000000000001e0b	movl	%edx, -0xc(%rbp)
+0000000000001e0e	movq	-0x28(%rbp), %rax
+0000000000001e12	movq	%rax, %rcx
+0000000000001e15	addq	$0x4, %rcx
+0000000000001e19	movq	%rcx, -0x28(%rbp)
+0000000000001e1d	movl	(%rax), %edx
+0000000000001e1f	movl	%edx, -0x30(%rbp)
+0000000000001e22	imull	$0x5bd1e995, -0x30(%rbp), %edx
+0000000000001e29	movl	%edx, -0x30(%rbp)
+0000000000001e2c	movl	-0x30(%rbp), %edx
+0000000000001e2f	shrl	$0x18, %edx
+0000000000001e32	xorl	-0x30(%rbp), %edx
+0000000000001e35	movl	%edx, -0x30(%rbp)
+0000000000001e38	imull	$0x5bd1e995, -0x30(%rbp), %edx
+0000000000001e3f	movl	%edx, -0x30(%rbp)
+0000000000001e42	imull	$0x5bd1e995, -0x20(%rbp), %edx
+0000000000001e49	movl	%edx, -0x20(%rbp)
+0000000000001e4c	movl	-0x30(%rbp), %edx
+0000000000001e4f	xorl	-0x20(%rbp), %edx
+0000000000001e52	movl	%edx, -0x20(%rbp)
+0000000000001e55	movl	-0xc(%rbp), %edx
+0000000000001e58	subl	$0x4, %edx
+0000000000001e5b	movl	%edx, -0xc(%rbp)
+0000000000001e5e	jmp	0x1db4
+0000000000001e63	cmpl	$0x4, -0xc(%rbp)
+0000000000001e67	jl	0x1ebd
+0000000000001e6d	movq	-0x28(%rbp), %rax
+0000000000001e71	movq	%rax, %rcx
+0000000000001e74	addq	$0x4, %rcx
+0000000000001e78	movq	%rcx, -0x28(%rbp)
+0000000000001e7c	movl	(%rax), %edx
+0000000000001e7e	movl	%edx, -0x34(%rbp)
+0000000000001e81	imull	$0x5bd1e995, -0x34(%rbp), %edx
+0000000000001e88	movl	%edx, -0x34(%rbp)
+0000000000001e8b	movl	-0x34(%rbp), %edx
+0000000000001e8e	shrl	$0x18, %edx
+0000000000001e91	xorl	-0x34(%rbp), %edx
+0000000000001e94	movl	%edx, -0x34(%rbp)
+0000000000001e97	imull	$0x5bd1e995, -0x34(%rbp), %edx
+0000000000001e9e	movl	%edx, -0x34(%rbp)
+0000000000001ea1	imull	$0x5bd1e995, -0x1c(%rbp), %edx
+0000000000001ea8	movl	%edx, -0x1c(%rbp)
+0000000000001eab	movl	-0x34(%rbp), %edx
+0000000000001eae	xorl	-0x1c(%rbp), %edx
+0000000000001eb1	movl	%edx, -0x1c(%rbp)
+0000000000001eb4	movl	-0xc(%rbp), %edx
+0000000000001eb7	subl	$0x4, %edx
+0000000000001eba	movl	%edx, -0xc(%rbp)
+0000000000001ebd	movl	-0xc(%rbp), %eax
+0000000000001ec0	movl	%eax, %ecx
+0000000000001ec2	subl	$0x1, %ecx
+0000000000001ec5	movl	%eax, -0x44(%rbp)
+0000000000001ec8	movl	%ecx, -0x48(%rbp)
+0000000000001ecb	je	0x1f20
+0000000000001ed1	jmp	0x1ed6
+0000000000001ed6	movl	-0x44(%rbp), %eax
+0000000000001ed9	subl	$0x2, %eax
+0000000000001edc	movl	%eax, -0x4c(%rbp)
+0000000000001edf	je	0x1f0f
+0000000000001ee5	jmp	0x1eea
+0000000000001eea	movl	-0x44(%rbp), %eax
+0000000000001eed	subl	$0x3, %eax
+0000000000001ef0	movl	%eax, -0x50(%rbp)
+0000000000001ef3	jne	0x1f37
+0000000000001ef9	jmp	0x1efe
+0000000000001efe	movq	-0x28(%rbp), %rax
+0000000000001f02	movzbl	0x2(%rax), %ecx
+0000000000001f06	shll	$0x10, %ecx
+0000000000001f09	xorl	-0x20(%rbp), %ecx
+0000000000001f0c	movl	%ecx, -0x20(%rbp)
+0000000000001f0f	movq	-0x28(%rbp), %rax
+0000000000001f13	movzbl	0x1(%rax), %ecx
+0000000000001f17	shll	$0x8, %ecx
+0000000000001f1a	xorl	-0x20(%rbp), %ecx
+0000000000001f1d	movl	%ecx, -0x20(%rbp)
+0000000000001f20	movq	-0x28(%rbp), %rax
+0000000000001f24	movzbl	(%rax), %ecx
+0000000000001f27	xorl	-0x20(%rbp), %ecx
+0000000000001f2a	movl	%ecx, -0x20(%rbp)
+0000000000001f2d	imull	$0x5bd1e995, -0x20(%rbp), %ecx
+0000000000001f34	movl	%ecx, -0x20(%rbp)
+0000000000001f37	movl	-0x20(%rbp), %eax
+0000000000001f3a	shrl	$0x12, %eax
+0000000000001f3d	xorl	-0x1c(%rbp), %eax
+0000000000001f40	movl	%eax, -0x1c(%rbp)
+0000000000001f43	imull	$0x5bd1e995, -0x1c(%rbp), %eax
+0000000000001f4a	movl	%eax, -0x1c(%rbp)
+0000000000001f4d	movl	-0x1c(%rbp), %eax
+0000000000001f50	shrl	$0x16, %eax
+0000000000001f53	xorl	-0x20(%rbp), %eax
+0000000000001f56	movl	%eax, -0x20(%rbp)
+0000000000001f59	imull	$0x5bd1e995, -0x20(%rbp), %eax
+0000000000001f60	movl	%eax, -0x20(%rbp)
+0000000000001f63	movl	-0x20(%rbp), %eax
+0000000000001f66	shrl	$0x11, %eax
+0000000000001f69	xorl	-0x1c(%rbp), %eax
+0000000000001f6c	movl	%eax, -0x1c(%rbp)
+0000000000001f6f	imull	$0x5bd1e995, -0x1c(%rbp), %eax
+0000000000001f76	movl	%eax, -0x1c(%rbp)
+0000000000001f79	movl	-0x1c(%rbp), %eax
+0000000000001f7c	shrl	$0x13, %eax
+0000000000001f7f	xorl	-0x20(%rbp), %eax
+0000000000001f82	movl	%eax, -0x20(%rbp)
+0000000000001f85	imull	$0x5bd1e995, -0x20(%rbp), %eax
+0000000000001f8c	movl	%eax, -0x20(%rbp)
+0000000000001f8f	movl	-0x1c(%rbp), %eax
+0000000000001f92	movl	%eax, %ecx
+0000000000001f94	movq	%rcx, -0x40(%rbp)
+0000000000001f98	movq	-0x40(%rbp), %rcx
+0000000000001f9c	shlq	$0x20, %rcx
+0000000000001fa0	movl	-0x20(%rbp), %eax
+0000000000001fa3	movl	%eax, %edx
+0000000000001fa5	orq	%rdx, %rcx
+0000000000001fa8	movq	%rcx, -0x40(%rbp)
+0000000000001fac	movq	-0x40(%rbp), %rax
+0000000000001fb0	popq	%rbp
+0000000000001fb1	retq
+
+==================================================================
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/backend.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/backend.h">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend-1.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend-1.h">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend.h">
+   </FileRef>
+   <FileRef
+      location = "group:../../compiler/macho-compile/main.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/my_lib.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/my_lyb.h">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/operations.h">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/stack.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokenizer.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokenizer.h">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokens.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokens.h">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tree.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tree.h">
+   </FileRef>
+   <FileRef
+      location = "self:my_language_compiler.xcodeproj">
+   </FileRef>
+</Workspace>

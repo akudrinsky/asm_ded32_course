@@ -1,0 +1,29 @@
+$ You could use python,
+but you chose your destiny... $
+ 
+ 
+dictate betrayal of iter :
+	person sum
+	sum now iter
+ 
+	iter now iter - 1
+ 
+	if " iter worse dead " :
+		sum now sum * cause betrayal of iter .
+ 
+	summon sum
+.
+ 
+dictate reign :
+	person minister
+	person collector
+ 
+	minister now dead
+	collector now a disgrace
+ 
+	minister now cause betrayal of collector
+ 
+	know minister
+ 
+	summon dead
+.

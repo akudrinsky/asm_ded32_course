@@ -1,0 +1,61 @@
+call reign
+end
+
+
+func betrayal
+pushr ax
+push 5
+add
+popr ax
+
+popm [ax+0]
+pushm [ax+0]
+popm [ax+1]
+pushm [ax+0]
+push 1
+sub
+popm [ax+0]
+
+pushm [ax+0]
+push 0
+jb a
+jump b
+
+label a
+pushm [ax+1]
+pushm [ax+0]
+call betrayal
+mul
+popm [ax+1]
+label b
+pushm [ax+1]
+
+pushr ax
+push 5
+sub
+popr ax
+
+ret
+
+func reign
+pushr ax
+push 5
+add
+popr ax
+
+push 0
+popm [ax+0]
+push 8
+popm [ax+1]
+pushm [ax+1]
+call betrayal
+popm [ax+0]
+pushm [ax+0]
+out
+
+pushr ax
+push 5
+sub
+popr ax
+
+ret
