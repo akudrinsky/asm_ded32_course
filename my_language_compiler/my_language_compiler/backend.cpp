@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "backend.h"
 #include "make_file.hpp"
-//#include "x86_commands.hpp"
+#include "x86_commands.hpp"
 
 b_end::b_end (node *root) {
     code = new char[max_len];
@@ -59,7 +59,7 @@ bool b_end::all () {
         return false;
     }
     
-    printf ("\n\nSTART\n\n");
+    //printf ("\n\nSTART\n\n");
     
     if (main_nd->type == PROGRAMM) {
         return block (main_nd->right);
@@ -74,7 +74,7 @@ bool b_end::all () {
 }
 
 bool b_end::block (node *nd) {
-    printf ("block:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    //printf ("block:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
     bool have_problems = false;
     
     if (nd == nullptr) {
@@ -114,7 +114,7 @@ bool b_end::func_def (node *nd) {
         err_info ("problems in backend: func_def (1)\n");
         return false;
     }
-    printf ("func_def:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    //printf ("func_def:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
     
     if (nd->type != DEFINITION) {                                       //current node - func definition
         err_info ("problems in backend: func_def (2)\n");
@@ -141,15 +141,15 @@ bool b_end::func_def (node *nd) {
     else {
         node* id_nd = nd->right;
         
-        write ("\nfunc ");
-        write (id_nd->data);
-        write ("\npushr ax\npush 5\nadd\npopr ax\n\n");
-        
-        
+        //write ("\nfunc ");
+        //write (id_nd->data);
+        //write ("\npushr ax\npush 5\nadd\npopr ax\n\n");
+        write (commands::);
         
         //parameters
         for (int i = 1; i <= local_vars->amount; ++i) {
             fprintf (dist, "popm [ax+%d]\n", local_names->initial_ammount - i);
+            write (commands::);
         }
         //write ("\npushr fx\npush 10\nadd\npopr fx\n");
         

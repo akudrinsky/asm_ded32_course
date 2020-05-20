@@ -5,6 +5,8 @@
 
 struct b_end {
     //FILE*       dist;
+    //void write (const char* cmd, const char* cmd1 = "", const char* cmd2 = "") {}
+    
     char* code = nullptr;
     uint32_t len = 0;
     uint32_t max_len = 1000;
@@ -17,13 +19,13 @@ struct b_end {
     
     explicit b_end (node* root);
     ~b_end ();
-
-    void write (const char* cmd, const int cmd_len);
+    
+    void write (const char* cmd, const int cmd_len);    //
     
     int new_cond ();
     bool reg_name (node* nd);
 
-    bool all ();
+    bool all ();                                        //
     bool block (node* nd);
     bool func_def (node* nd);
     bool func_return (node* nd);

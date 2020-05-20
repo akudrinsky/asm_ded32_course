@@ -10,7 +10,7 @@
 #include "tree.hpp"
 #include "frontend-1.h"
 #include "make_file.hpp"
-#include "x86_commands.hpp"
+//#include "x86_commands.hpp"
 #include "string.h"
 
 #include <iostream>
@@ -26,14 +26,15 @@ int main (int argc, const char* argv[]) {
     nd->photo ();
     
     backend (nd);
-    
+    /*
     char* code = new char[10];
     strncpy (code, (char*)commands::push_rax, commands::push_rax_size);
     strncpy (code + commands::push_rax_size, (char*)commands::pop_rax, commands::pop_rax_size);
     
-    //make_file ("try1", (char*)commands::push_rax, commands::push_rax_size);
+    make_file ("try1", (char*)commands::push_rax, commands::push_rax_size);
     
     delete [] code;
+     */
     
     return 0;
 }

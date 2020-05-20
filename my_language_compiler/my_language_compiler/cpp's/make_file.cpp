@@ -20,13 +20,14 @@ void make_file (const char* filename, const char* code, int len) {
     mach_header_64 header {
         .magic      = 0xFEEDFACF,
         .cputype    = 0x01000007,
-        .cpusubtype = static_cast<cpu_subtype_t> (0x80000003),
+        .cpusubtype = static_cast<cpu_subtype_t> (0x00000003),
         .filetype   = 0x00000002,
         .ncmds      = 3,
         .sizeofcmds = 2 * sizeof (segment_command_64) + sizeof (section_64) + sizeof (unixthread),
         .flags      = 0x00000001,
         .reserved   = 0x00000000
     };
+    //printf ("%d %d %d\n", sizeof (segment_command), sizeof (section_64), sizeof (unixthread));
     
     segment_command_64 page_zero {
         .cmd        = 0x00000019,
@@ -72,7 +73,7 @@ void make_file (const char* filename, const char* code, int len) {
     };
     
     unixthread u_thread {
-        .cmd       = 0x00000005,
+        .cmd       = LC_UNIXTHREAD,
         .cmdsize   = sizeof (unixthread),
         .flavor    = 0x00000004,
         .count     = 0x0000002A,
