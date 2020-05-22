@@ -57,7 +57,13 @@ node* create_node (const char* data, char type, node* left, node* right) {
     node* nd = new node;
     ASSERT (nd != nullptr)
     
-    nd->data = (char*)data;
+    if (data == nullptr) {
+        nd->data = nullptr;
+    }
+    else {
+        nd->data = new char[default_size];
+        strncpy (nd->data, data, default_size);
+    }
     nd->type = type;
     nd->left = left;
     nd->right = right;
@@ -78,11 +84,18 @@ node* create_node (const char* data, char type, node* left, node* right) {
 //! @param [in] prnt - parent node
 //‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 node::node(const char tp, char* str, node* left_l, node* right_l, node* prnt) {
-    data = str;
+    if (str == nullptr) {
+        data = nullptr;
+    }
+    else {
+        data = new char[default_size];
+        strncpy (data, str, default_size);
+    }
+    
     left = left_l;
     right = right_l;
     parent = prnt;
-    type = tp;                                         //unknown
+    type = tp;                                         // unknown
 }
 
 //‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐

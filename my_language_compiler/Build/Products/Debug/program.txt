@@ -1,7 +1,6 @@
 $ You could use python,
-but you chose your destiny... $
- 
- 
+	but you chose your destiny... $
+
 dictate betrayal of iter :
 	person sum
 	sum now iter
@@ -11,9 +10,9 @@ dictate betrayal of iter :
 	if " iter worse dead " :
 		sum now sum * cause betrayal of iter .
  
-	summon sum
+	summon sum 
 .
- 
+
 dictate reign :
 	person minister
 	person collector

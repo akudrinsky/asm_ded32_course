@@ -97,10 +97,11 @@ void for_names::print () {
 int for_names::search_name (char *name) {
     for (int i = 0; i < amount; ++i) {
         if (strcmp (names[i], name) == 0) {
-            return i;
+            return i < initial_ammount ? i : i + 2;
+            //return i;
         }
     }
-    return -1;
+    return -3;
 }
 
 for_names::~for_names() {

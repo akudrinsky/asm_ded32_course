@@ -10,79 +10,111 @@
 #define MAKE_BINARY_FILE
 
 #include <mach-o/loader.h>
-//#include <mach/machine/unixthread.h>
 #include <stdio.h>
 #include "make_file.hpp"
 
-void make_file (const char* filename, const char* code, int len) {
-    constexpr int code_beginning = sizeof (mach_header_64) + 2 * sizeof (segment_command_64) + sizeof (section_64) + sizeof (unixthread);
+/* Try MachOView, if you do not understand something.
+ Or better code it yourself. */
+
+void make_file (const char* filename, const unsigned char* code, uint64_t len) {
+    constexpr uint32_t code_beginning = sizeof (mach_header_64) + 3 * sizeof (segment_command_64) + 2 * sizeof (section_64) + sizeof (unixthread);
+    
+    constexpr int data_size = 0x500;
     
     mach_header_64 header {
-        .magic      = 0xFEEDFACF,
-        .cputype    = 0x01000007,
-        .cpusubtype = static_cast<cpu_subtype_t> (0x00000003),
-        .filetype   = 0x00000002,
-        .ncmds      = 3,
-        .sizeofcmds = 2 * sizeof (segment_command_64) + sizeof (section_64) + sizeof (unixthread),
-        .flags      = 0x00000001,
-        .reserved   = 0x00000000
+        .magic      = MH_MAGIC_64,
+        .cputype    = CPU_TYPE_X86_64,
+        .cpusubtype = CPU_SUBTYPE_X86_64_ALL,
+        .filetype   = MH_EXECUTE,
+        .ncmds      = 4,
+        .sizeofcmds = code_beginning,
+        .flags      = 0x85,
+        .reserved   = 0x0
     };
-    //printf ("%d %d %d\n", sizeof (segment_command), sizeof (section_64), sizeof (unixthread));
     
     segment_command_64 page_zero {
-        .cmd        = 0x00000019,
+        .cmd        = LC_SEGMENT_64,
         .cmdsize    = sizeof (segment_command_64),
         .segname    = "__PAGEZERO\0\0\0\0\0",
-        .vmaddr     = 0x0000000000000000,
-        .vmsize     = 0x0000000001000000,
-        .fileoff    = 0x0000000000000000,
-        .filesize   = 0x0000000000000000,
-        .maxprot    = 0x00000000,
-        .initprot   = 0x00000000,
-        .nsects     = 0x00000000,
-        .flags      = 0x00000000
+        .vmaddr     = 0x0,
+        .vmsize     = 0x100000000,
+        .fileoff    = 0x0,
+        .filesize   = 0x0,
+        .maxprot    = 0x0,
+        .initprot   = 0x0,
+        .nsects     = 0x0,
+        .flags      = 0x0
     };
     
     segment_command_64 text_segment {
-        .cmd        = 0x00000019,
-        .cmdsize    = sizeof (segment_command_64),
+        .cmd        = LC_SEGMENT_64,
+        .cmdsize    = sizeof (segment_command_64) + sizeof (section_64),
         .segname    = "__TEXT\0\0\0\0\0\0\0\0\0",
-        .vmaddr     = 0x0000000001000000,
-        .vmsize     = 0x0000000000010000,
-        .fileoff    = 0x0000000000000000,
-        .filesize   = 0x0000000000010000,
-        .maxprot    = 0x00000007,
-        .initprot   = 0x00000005,
-        .nsects     = 0x00000001,
-        .flags      = 0x00000000
+        .vmaddr     = 0x100000000,
+        .vmsize     = 0x1000,
+        .fileoff    = 0x00,
+        .filesize   = 0x1000,
+        .maxprot    = 0x7,
+        .initprot   = 0x5,
+        .nsects     = 0x1,
+        .flags      = 0x0
     };
     
     section_64 text_section {
         .sectname   = "__text\0\0\0\0\0\0\0\0\0",
         .segname    = "__TEXT\0\0\0\0\0\0\0\0\0",
-        .addr       = static_cast<uint64_t> (0x001000000 | code_beginning),
-        .size       = static_cast<uint64_t> (len),
-        .offset     = static_cast<uint32_t> (code_beginning),
-        .align      = 0x00000001,
-        .reloff     = 0x00000000,
-        .nreloc     = 0x00000000,
+        .addr       = 0x100000000 | code_beginning,
+        .size       = len,
+        .offset     = code_beginning,
+        .align      = 0x1,
+        .reloff     = 0x0,
+        .nreloc     = 0x0,
         .flags      = 0x80000400,
-        .reserved1  = 0x00000000,
-        .reserved2  = 0x00000000,
-        .reserved3  = 0x00000000
+        .reserved1  = 0x0,
+        .reserved2  = 0x0,
+        .reserved3  = 0x0
+    };
+    
+    segment_command_64 data_segment {
+        .cmd        = LC_SEGMENT_64,
+        .cmdsize    = sizeof (segment_command_64) + sizeof (section_64),
+        .segname    = "__DATA\0\0\0\0\0\0\0\0\0",
+        .vmaddr     = 0x100001000,
+        .vmsize     = 0x1000,
+        .fileoff    = 0x1000,
+        .filesize   = 0x1000,
+        .maxprot    = 0x3,
+        .initprot   = 0x3,
+        .nsects     = 0x1,
+        .flags      = 0x0
+    };
+    
+    section_64 data_section {
+        .sectname   = "__data\0\0\0\0\0\0\0\0\0",
+        .segname    = "__DATA\0\0\0\0\0\0\0\0\0",
+        .addr       = 0x100001000,
+        .size       = data_size,
+        .offset     = static_cast<uint32_t> (code_beginning + len),
+        .align      = 0x00000001,
+        .reloff     = 0x0,
+        .nreloc     = 0x0,
+        .flags      = 0x0,
+        .reserved1  = 0x0,
+        .reserved2  = 0x0,
+        .reserved3  = 0x0
     };
     
     unixthread u_thread {
         .cmd       = LC_UNIXTHREAD,
         .cmdsize   = sizeof (unixthread),
-        .flavor    = 0x00000004,
-        .count     = 0x0000002A,
+        .flavor    = x86_THREAD_STATE64,
+        .count     = 0x2A,
         .rax       = 0,
         .rbx       = 0,
         .rcx       = 0,
         .rdx       = 0,
         .rdi       = 0,
-        .rsi       = 0,
+        .rsi       = code_beginning + len,
         .rbp       = 0,
         .rsp       = 0,
         .r8        = 0,
@@ -93,7 +125,7 @@ void make_file (const char* filename, const char* code, int len) {
         .r13       = 0,
         .r14       = 0,
         .r15       = 0,
-        .rip       = 0x001000000 | code_beginning,
+        .rip       = 0x100000000 | code_beginning,
         .rflags    = 0,
         .cs        = 0,
         .fs        = 0,
@@ -102,12 +134,19 @@ void make_file (const char* filename, const char* code, int len) {
     
     FILE* executable = fopen (filename, "wb");
     
+    char initial_data = '\0';
+
     fwrite (&header,        sizeof (char),  sizeof (mach_header_64),     executable);
     fwrite (&page_zero,     sizeof (char),  sizeof (segment_command_64), executable);
     fwrite (&text_segment,  sizeof (char),  sizeof (segment_command_64), executable);
     fwrite (&text_section,  sizeof (char),  sizeof (section_64),         executable);
+    fwrite (&data_segment,  sizeof (char),  sizeof (segment_command_64), executable);
+    fwrite (&data_section,  sizeof (char),  sizeof (section_64),         executable);
     fwrite (&u_thread,      sizeof (char),  sizeof (unixthread),         executable);
     fwrite (code,           sizeof (char),  len,                         executable);
+    //fwrite (&initial_data,  sizeof (char),  data_size,                   executable);
+    for (int i = 0; i < data_size; ++i)
+        fputc (initial_data, executable);
     
     fclose (executable);
     
@@ -120,7 +159,7 @@ void make_file (const char* filename, const char* code, int len) {
     strncpy (make_executable + cmd_len, filename, filename_len);
     make_executable[cmd_len + filename_len] = '\0';
     
-    //printf ("%s\n", make_executable);
+    ON_DEBUG (printf ("%s\n", make_executable))
     system (make_executable);
     delete [] make_executable;
 }

@@ -8,26 +8,30 @@
 
 #include <stdio.h>
 #include "backend.h"
-#include "make_file.hpp"
 #include "x86_commands.hpp"
 
 b_end::b_end (node *root) {
-    code = new char[max_len];
+    code = new unsigned char[max_len];
     main_nd = root;
     cond_number = 'a';
     local_vars = nullptr;
+    
+    write (commands::call (0, 0), commands::call_size);
+
+    //show_cmd (end_programm)
+    cmd (end_programm)
 }
 
 b_end::~b_end () {
     delete [] code;
-    delete [] local_vars;
 }
 
-void b_end::write (const char* cmd, const int cmd_len) {
+void b_end::write (const unsigned char cmd[], const int cmd_len) {
     if (len + cmd_len > max_len) {                      // need to make it more safe
         err_info ("not enough code length\n");
     }
-    strncpy (code + len, cmd, cmd_len);
+    memcpy ((char*) code + len, (char*) cmd, cmd_len);
+    ON_DEBUG (printf ("offset: %x\n", 0x250 + len))
     len += cmd_len;
 }
 
@@ -36,21 +40,23 @@ int b_end::new_cond () {
     return cond_number - 1;
 }
 
-bool b_end::reg_name (node *nd) {
+uint32_t b_end::reg_name (node *nd) {
     if (nd->data == nullptr) {
         err_info ("problems in reg_name\n");
-        return false;
+        return -1;
     }
     int index = local_vars->search_name (nd->data);
+    
     if (index == -1) {
         err_info ("bad name in reg_name: ");
         err_info (nd->data);
         err_info ("\n");
+        return -1;
     }
     else {
-        fprintf (dist, "%d", index);
+        return index;
+        //fprintf (dist, "%d", index);
     }
-    return true;
 }
 
 bool b_end::all () {
@@ -59,7 +65,7 @@ bool b_end::all () {
         return false;
     }
     
-    //printf ("\n\nSTART\n\n");
+    ON_DEBUG (printf ("\n\nSTART\n\n"))
     
     if (main_nd->type == PROGRAMM) {
         return block (main_nd->right);
@@ -74,7 +80,7 @@ bool b_end::all () {
 }
 
 bool b_end::block (node *nd) {
-    //printf ("block:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("block:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     bool have_problems = false;
     
     if (nd == nullptr) {
@@ -114,7 +120,7 @@ bool b_end::func_def (node *nd) {
         err_info ("problems in backend: func_def (1)\n");
         return false;
     }
-    //printf ("func_def:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("func_def:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd->type != DEFINITION) {                                       //current node - func definition
         err_info ("problems in backend: func_def (2)\n");
@@ -144,12 +150,18 @@ bool b_end::func_def (node *nd) {
         //write ("\nfunc ");
         //write (id_nd->data);
         //write ("\npushr ax\npush 5\nadd\npopr ax\n\n");
-        write (commands::);
+        
+        commands::funs_ids.insert ({nd->right->data, cond_number});
+        commands::labels.insert ({cond_number, len});
+        ++cond_number;
+        
+        //cmd (init_frame)
+        write (commands::init_frame (local_vars->initial_ammount), commands::init_frame_size);
         
         //parameters
         for (int i = 1; i <= local_vars->amount; ++i) {
-            fprintf (dist, "popm [ax+%d]\n", local_names->initial_ammount - i);
-            write (commands::);
+            //fprintf (dist, "popm [ax+%d]\n", local_names->initial_ammount - i);
+            popm (local_names->initial_ammount - i);
         }
         //write ("\npushr fx\npush 10\nadd\npopr fx\n");
         
@@ -165,7 +177,7 @@ bool b_end::func_def (node *nd) {
 }
 
 bool b_end::func_return (node *nd) {
-    printf ("func_ret:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("func_ret:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     if (nd == nullptr) {
         err_info ("problems in backend: func_return (1)\n");
         return false;
@@ -178,7 +190,9 @@ bool b_end::func_return (node *nd) {
     local_vars->print();
     
     if (nd->is_right() && nd->right->type == ID) {
-        fprintf (dist, "pushm [ax+%d]\n", local_vars->search_name (nd->right->data));
+        //fprintf (dist, "pushm [ax+%d]\n", local_vars->search_name (nd->right->data));
+        pushm (local_vars->search_name (nd->right->data));
+        //cmd (nop)
     }
     
     /*
@@ -187,7 +201,9 @@ bool b_end::func_return (node *nd) {
      }
      */
     
-    write ("\npushr ax\npush 5\nsub\npopr ax\n\nret\n");
+    //write ("\npushr ax\npush 5\nsub\npopr ax\n\nret\n");
+    cmd (pop_rbp)
+    cmd (ret)
     
     return true;
 }
@@ -197,7 +213,7 @@ bool b_end::func_call (node *nd) {
         err_info ("problems in backend: func_call (1)\n");
         return false;
     }
-    printf ("func_call:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("func_call:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data));
     
     if (nd->type != CALL) {
         err_info ("problems in backend: func_call (2)\n");
@@ -213,7 +229,10 @@ bool b_end::func_call (node *nd) {
             ++num;
         }
         
-        write ("call ", nd->right->data, "\n");
+        //write ("call ", nd->right->data, "\n");
+        // (new) write (commands::call (commands::funs_ids[nd->right->data], len), commands::call_size);
+        write (commands::call (0, len), commands::call_size);
+        write (commands::add_rsp (num * 8), commands::add_rsp_size);
         
         /*
          for (int i = 0; i < num; ++i) {
@@ -231,7 +250,7 @@ bool b_end::func_call (node *nd) {
 
 bool b_end::variable (node *nd) {
     bool have_problems = false;
-    printf ("variable:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("variable:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd == nullptr) {
         err_info ("problems in backend: variable (1)\n");
@@ -262,7 +281,7 @@ bool b_end::instructions (node *nd) {
         err_info ("problems in backend: instructions (1)\n");
         return false;
     }
-    printf ("instructions:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("instructions:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd->type != INSTRUCTION) {
         err_info ("problems in backend: instructions (2)\n");
@@ -332,7 +351,7 @@ bool b_end::assign (node *nd) {
         err_info ("problems in backend: variable (1)\n");
         return false;
     }
-    printf ("assign:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("assign:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd->type != ASSIGN) {                                       //current node - variable
         err_info ("problems in backend: variable (2)\n");
@@ -342,11 +361,32 @@ bool b_end::assign (node *nd) {
     //write ("\npush ", nd->right->data, "\n");
     have_problems = have_problems || equation (nd->right);
     
+    popm (reg_name (nd->left));
+    /*
     write ("popm [ax+");
     reg_name (nd->left);
     write ("]\n");
+     */
     
     return !have_problems;
+}
+
+void b_end::pushm (int32_t var_id) {
+    if (var_id < local_vars->initial_ammount)
+        write (commands::mov_rax_qword_rbp (8 * var_id), commands::mov_rax_qword_rbp_size);
+    else
+        write (commands::mov_rax_qword_rbp (8 * (var_id + 2)), commands::mov_rax_qword_rbp_size);
+    
+    cmd (push_rax)
+}
+
+void b_end::popm (int32_t var_id) {
+    cmd (pop_rax)
+    
+    if (var_id < local_vars->initial_ammount)
+        write (commands::mov_qword_rbp_rax (8 * var_id), commands::mov_qword_rbp_rax_size);
+    else
+        write (commands::mov_qword_rbp_rax (8 * (var_id + 2)), commands::mov_qword_rbp_rax_size);
 }
 
 bool b_end::condition (node *nd) {
@@ -357,7 +397,7 @@ bool b_end::condition (node *nd) {
         err_info ("problems in backend: condition (1)\n");
         return false;
     }
-    printf ("condition:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("condition:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd->type != IF) {                                       //current node - variable
         err_info ("problems in backend: condition (2)\n");
@@ -368,26 +408,34 @@ bool b_end::condition (node *nd) {
         node* cond = nd->left;
         
         if (cond->is_left() && cond->is_right()) {
-            write ("\n");
+            //write ("\n");
             push (cond->left);
             push (cond->right);
-            printf ("cond:%9s\t\t%s\n\n", tokens[cond->type].name, cond->data);
+            cmd (pop_rbx)
+            cmd (pop_rax)
+            cmd (cmp_rax_rbx)
+            
+            ON_DEBUG (printf ("cond:%9s\t\t%s\n\n", tokens[cond->type].name, cond->data))
             
             switch (cond->type) {
                 case IS_EQUAL: {
-                    fprintf (dist, "je %c\n", cond_number);
+                    //fprintf (dist, "je %c\n", cond_number);
+                    write (commands::je (cond_number, len), commands::je_size);
                     break;
                 }
                 case IS_BIGGER: {
-                    fprintf (dist, "ja %c\n", cond_number);
+                    //fprintf (dist, "ja %c\n", cond_number);
+                    write (commands::ja (cond_number, len), commands::ja_size);
                     break;
                 }
                 case IS_LESS: {
-                    fprintf (dist, "jb %c\n", cond_number);
+                    //fprintf (dist, "jb %c\n", cond_number);
+                    write (commands::jb (cond_number, len), commands::jb_size);
                     break;
                 }
                 case NOT_EQUAL: {
-                    fprintf (dist, "jne %c\n", cond_number);
+                    //fprintf (dist, "jne %c\n", cond_number);
+                    write (commands::jne (cond_number, len), commands::jne_size);
                     break;
                 }
                 default: {
@@ -401,7 +449,10 @@ bool b_end::condition (node *nd) {
             return false;
         }
         
-        fprintf (dist, "jump %c\n\nlabel %c\n", cond_number + 1, cond_number);
+        write (commands::jmp (cond_number + 1, len), commands::jmp_size);
+        
+        commands::labels.insert ({cond_number, len});
+        //fprintf (dist, "jump %c\n\nlabel %c\n", cond_number + 1, cond_number);
         cond_number += 2;
     }
     else {
@@ -427,7 +478,8 @@ bool b_end::condition (node *nd) {
         return false;
     }
     
-    fprintf (dist, "label %c\n", now_cond);
+    commands::labels.insert ({now_cond, len});
+    //fprintf (dist, "label %c\n", now_cond);
     
     return !have_problems;
 }
@@ -439,7 +491,7 @@ bool b_end::cycle (node *nd) {
         err_info ("problems in backend: cycle (1)\n");
         return false;
     }
-    printf ("cycle:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("cycle:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd->type != WHILE) {                                       //current node - variable
         err_info ("problems in backend: cycle (2)\n");
@@ -447,31 +499,37 @@ bool b_end::cycle (node *nd) {
     }
     
     if (nd->left != nullptr) {
-        fprintf (dist, "\nlabel %c\n", cond_number);
+        commands::labels.insert ({cond_number, len});
+        //fprintf (dist, "\nlabel %c\n", cond_number);
+        
         cond_number += 3;
         
         node* cond = nd->left;
         
         if (cond->is_left() && cond->is_right()) {
-            write ("\n");
+            //write ("\n");
             push (cond->left);
             push (cond->right);
             
             switch (cond->type) {
                 case IS_EQUAL: {
-                    fprintf (dist, "je %c\n", cond_number - 2);
+                    //fprintf (dist, "je %c\n", cond_number - 2);
+                    write (commands::je (cond_number - 2, len), commands::je_size);
                     break;
                 }
                 case IS_BIGGER: {
-                    fprintf (dist, "ja %c\n", cond_number - 2);
+                    //fprintf (dist, "ja %c\n", cond_number - 2);
+                    write (commands::ja (cond_number - 2, len), commands::ja_size);
                     break;
                 }
                 case IS_LESS: {
-                    fprintf (dist, "jb %c\n", cond_number - 2);
+                    //fprintf (dist, "jb %c\n", cond_number - 2);
+                    write (commands::jb (cond_number - 2, len), commands::jb_size);
                     break;
                 }
                 case NOT_EQUAL: {
-                    fprintf (dist, "jne %c\n", cond_number - 2);
+                    //fprintf (dist, "jne %c\n", cond_number - 2);
+                    write (commands::jne (cond_number - 2, len), commands::jne_size);
                     break;
                 }
                 default: {
@@ -479,14 +537,17 @@ bool b_end::cycle (node *nd) {
                     return false;
                 }
             }
-            fprintf (dist, "jump %c\n", cond_number - 1);
+            len += commands::je_size;
+            //fprintf (dist, "jump %c\n", cond_number - 1);
+            commands::jmp (cond_number - 1, len);
+            len += commands::jmp_size;
         }
         else {
             err_info ("problems in backend: cycle (4)\n");
             return false;
         }
-        
-        fprintf (dist, "\nlabel %c\n", cond_number - 2);
+        commands::labels.insert ({cond_number - 2, len});
+        //fprintf (dist, "\nlabel %c\n", cond_number - 2);
     }
     else {
         err_info ("problems in backend: cycle (3)\n");
@@ -495,7 +556,10 @@ bool b_end::cycle (node *nd) {
     
     if (nd->is_right ()) {
         have_problems = have_problems || instructions (nd->right);
-        fprintf (dist, "jump %c\nlabel %c\n", cond_number - 3, cond_number - 1);
+        commands::jmp (cond_number - 3, len);
+        len += commands::jmp_size;
+        commands::labels.insert ({cond_number - 1, len});
+        //fprintf (dist, "jump %c\nlabel %c\n", cond_number - 3, cond_number - 1);
     }
     else {
         err_info ("problems in backend: cycle (6)\n");
@@ -510,15 +574,19 @@ bool b_end::push (node *nd) {
         err_info ("problems in backend: push (1)\n");
         return false;
     }
-    printf ("push:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("push:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd->type == ID) {
+        pushm (reg_name (nd));
+        /*
         write ("pushm [ax+");
         reg_name (nd);
         write ("]\n");
+         */
     }
     else if (nd->type == NUMBER) {
-        write ("push ", nd->data, "\n");
+        write (commands::push_num (atoi (nd->data)), commands::push_num_size);
+        //write ("push ", nd->data, "\n");
     }
     else {
         err_info ("problems in backend: push (2)\n");
@@ -542,9 +610,13 @@ bool b_end::increm (node *nd) {
         
         push (nd->right);
         
-        write ("\npush 1\nadd\npopm [ax+");
-        reg_name (nd->right);
-        write ("]\n");
+        //write ("\npush 1\nadd\npopm [ax+");
+        cmd (pop_rax)
+        cmd (inc_rax)
+
+        commands::mov_qword_rbp_rax (8 * reg_name (nd->right));     // 8 - size of register
+        //write ("]\n");
+        len += commands::mov_qword_rbp_rax_size;
         
         return true;
     }
@@ -568,9 +640,12 @@ bool b_end::decrem (node *nd) {
         
         push (nd->right);
         
-        write ("\npush 1\nsub\npopm [ax+");
-        reg_name (nd->right);
-        write ("]\n");
+        //write ("\npush 1\nsub\npopm [ax+");
+        cmd (pop_rax)
+        cmd (dec_rax)
+        commands::mov_qword_rbp_rax (8 * reg_name (nd->right));     // 8 - size of register
+        //write ("]\n");
+        len += commands::mov_qword_rbp_rax_size;
         
         return true;
     }
@@ -586,7 +661,7 @@ bool b_end::out (node *nd) {
         return false;
     }
     
-    printf ("out:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("out:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     if (nd->type == OUT) {
         if (nd->right == nullptr) {
@@ -595,7 +670,8 @@ bool b_end::out (node *nd) {
         }
         
         push (nd->right);
-        write ("out\n");
+        //write ("out\n");
+        cmd (out)
         
         return true;
     }
@@ -611,7 +687,7 @@ bool b_end::equation (node *nd) {
         return false;
     }
     
-    printf ("equation:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data);
+    ON_DEBUG (printf ("equation:%9s\t\t%s\n\n", tokens[nd->type].name, nd->data))
     
     bool have_problems = false;
     
@@ -636,19 +712,35 @@ bool b_end::equation (node *nd) {
             break;
         }
         case PLUS: {
-            write ("add\n");
+            cmd (pop_rbx)
+            cmd (pop_rax)
+            cmd (add_rax_rbx)
+            cmd (push_rax)
+            //write ("add\n");
             break;
         }
         case MINUS: {
-            write ("sub\n");
+            cmd (pop_rbx)
+            cmd (pop_rax)
+            cmd (sub_rax_rbx)
+            cmd (push_rax)
+            //write ("sub\n");
             break;
         }
         case MULT: {
-            write ("mul\n");
+            cmd (pop_rbx)
+            cmd (pop_rax)
+            cmd (imul_rax_rbx)
+            cmd (push_rax)
+            //write ("mul\n");
             break;
         }
         case DIVIDE: {
-            write ("div\n");
+            cmd (pop_rbx)
+            cmd (pop_rax)
+            cmd (idiv_rbx)
+            cmd (push_rax)
+            //write ("div\n");
             break;
         }
     }
@@ -656,17 +748,35 @@ bool b_end::equation (node *nd) {
     return have_problems;
 }
 
+void b_end::fill_labels () {
+    for (unsigned char label = 0; label < cond_number; ++label) {
+        try {
+            commands::to_fill.at (label);
+        } catch (std::out_of_range) {
+            ON_DEBUG (printf ("There was no label %d in to_fill\n", label));
+        }
+        
+        try {
+            *reinterpret_cast<int*> (code + commands::to_fill.at (label)) = commands::labels.at (label) - commands::to_fill.at (label);
+        }
+        catch (std::out_of_range) {
+            ON_DEBUG (printf ("There was no label %d in one of two maps\n", label));
+        }
+    }
+}
+
 bool backend (node* nd, const char* program_name) {
-    FILE* pFile = fopen (program_name, "w");
-    ASSERT (pFile != nullptr)
+    //FILE* pFile = fopen (program_name, "w");
+    //ASSERT (pFile != nullptr)
     
     b_end nds = b_end (nd);
-    nds.write ("call reign\nend\n\n");
+    //nds.write ("call reign\nend\n\n");
     
     bool were_problems = nds.all ();
-    fclose (pFile);
+    //fclose (pFile);
+    
+    nds.fill_labels ();
     
     make_file ("try1", nds.code, nds.len);
-    
     return were_problems;
 }

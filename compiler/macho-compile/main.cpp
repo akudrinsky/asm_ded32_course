@@ -26,6 +26,7 @@ int main (int argc, const char* argv[]) {
     nd->photo ();
     
     backend (nd);
+    
     /*
     char* code = new char[10];
     strncpy (code, (char*)commands::push_rax, commands::push_rax_size);

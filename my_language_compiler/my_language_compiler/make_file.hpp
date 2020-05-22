@@ -12,6 +12,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define DBG
+
+#ifdef DBG
+    #define ON_DEBUG(text) text;
+#else
+    #define ON_DEBUG(text) ;
+#endif
+
 struct unixthread {
     uint32_t    cmd;
     uint32_t    cmdsize;
@@ -43,6 +51,6 @@ struct unixthread {
     
 };
 
-void make_file (const char* filename, const char* code, int len);
+void make_file (const char* filename, const unsigned char* code, uint64_t len);
 
 #endif /* make_file_hpp */
