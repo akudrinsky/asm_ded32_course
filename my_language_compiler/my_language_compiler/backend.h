@@ -9,6 +9,8 @@ struct b_end {
     //void write (const char* cmd, const char* cmd1 = "", const char* cmd2 = "") {}
     
     unsigned char* code = nullptr;
+    static const int register_size = 8;
+    
     uint32_t len = 0;
     uint32_t max_len = 1000;
     
@@ -23,7 +25,6 @@ struct b_end {
     
     void write (const unsigned char cmd[], const int cmd_len);    //
     
-    int new_cond ();
     uint32_t reg_name (node* nd);
 
     bool all ();                                        //

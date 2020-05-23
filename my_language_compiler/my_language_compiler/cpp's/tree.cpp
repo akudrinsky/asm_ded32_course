@@ -219,6 +219,8 @@ void node::photo(const char* pict_name, const char* pict_type, int iter, FILE* p
         strcat (command, pict_name);
         
         system (command);
+        
+        system ("rm tree_graph.dot");
     }
 }
 //#include "rec.h"

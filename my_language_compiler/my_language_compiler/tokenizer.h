@@ -21,8 +21,6 @@ bool not_divider (char symbol);
 #define now_parse_that_long_long_name   \
     nodes[n_nodes].type = ID;           \
     char* id = new char[default_size];  \
-printf ("1.5\n");\
-printf ("2\n");\
     char* cur = id;                     \
                                         \
     while (not_divider (*str) and cur - id <= default_size) {\
@@ -33,7 +31,6 @@ printf ("2\n");\
     if (*(cur - 1) == ',') {            \
         *(cur - 1) = '\0';              \
     }                                   \
-printf ("3\n");\
                                         \
     if (cur - id == default_size) {     \
         err_info ("Overwritten id - tokenize\n");\
@@ -41,7 +38,6 @@ printf ("3\n");\
                                         \
     strncpy (data, id, cur - id);       \
     delete [] id;                       \
-printf ("4\n");\
     //ids->append (id);
 
 

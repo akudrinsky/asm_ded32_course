@@ -7,7 +7,7 @@ dictate betrayal of iter :
  
 	iter now iter - 1
  
-	if " iter worse dead " :
+	if " iter worse destroyed " :
 		sum now sum * cause betrayal of iter .
  
 	summon sum 

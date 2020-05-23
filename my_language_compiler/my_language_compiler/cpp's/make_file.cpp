@@ -13,13 +13,21 @@
 #include <stdio.h>
 #include "make_file.hpp"
 
+template <typename T>
+const T& max (const T& a, const T& b) {
+    return a < b ? b : a;
+}
+
 /* Try MachOView, if you do not understand something.
  Or better code it yourself. */
 
 void make_file (const char* filename, const unsigned char* code, uint64_t len) {
     constexpr uint32_t code_beginning = sizeof (mach_header_64) + 3 * sizeof (segment_command_64) + 2 * sizeof (section_64) + sizeof (unixthread);
     
-    constexpr int data_size = 0x500;
+    constexpr int minimum_size = 0x1000;
+    
+    if (len < minimum_size)
+        len = minimum_size;
     
     mach_header_64 header {
         .magic      = MH_MAGIC_64,
@@ -27,17 +35,18 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
         .cpusubtype = CPU_SUBTYPE_X86_64_ALL,
         .filetype   = MH_EXECUTE,
         .ncmds      = 4,
-        .sizeofcmds = code_beginning,
+        .sizeofcmds = code_beginning - sizeof (mach_header_64),
         .flags      = 0x85,
         .reserved   = 0x0
     };
     
+    constexpr int page_zero_size = 0x1000;
     segment_command_64 page_zero {
         .cmd        = LC_SEGMENT_64,
         .cmdsize    = sizeof (segment_command_64),
         .segname    = "__PAGEZERO\0\0\0\0\0",
         .vmaddr     = 0x0,
-        .vmsize     = 0x100000000,
+        .vmsize     = page_zero_size,
         .fileoff    = 0x0,
         .filesize   = 0x0,
         .maxprot    = 0x0,
@@ -50,10 +59,10 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
         .cmd        = LC_SEGMENT_64,
         .cmdsize    = sizeof (segment_command_64) + sizeof (section_64),
         .segname    = "__TEXT\0\0\0\0\0\0\0\0\0",
-        .vmaddr     = 0x100000000,
-        .vmsize     = 0x1000,
+        .vmaddr     = page_zero_size,
+        .vmsize     = len,
         .fileoff    = 0x00,
-        .filesize   = 0x1000,
+        .filesize   = len,
         .maxprot    = 0x7,
         .initprot   = 0x5,
         .nsects     = 0x1,
@@ -63,8 +72,8 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
     section_64 text_section {
         .sectname   = "__text\0\0\0\0\0\0\0\0\0",
         .segname    = "__TEXT\0\0\0\0\0\0\0\0\0",
-        .addr       = 0x100000000 | code_beginning,
-        .size       = len,
+        .addr       = page_zero_size + code_beginning,
+        .size       = len - code_beginning,
         .offset     = code_beginning,
         .align      = 0x1,
         .reloff     = 0x0,
@@ -79,10 +88,10 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
         .cmd        = LC_SEGMENT_64,
         .cmdsize    = sizeof (segment_command_64) + sizeof (section_64),
         .segname    = "__DATA\0\0\0\0\0\0\0\0\0",
-        .vmaddr     = 0x100001000,
-        .vmsize     = 0x1000,
-        .fileoff    = 0x1000,
-        .filesize   = 0x1000,
+        .vmaddr     = page_zero_size + len,
+        .vmsize     = minimum_size,
+        .fileoff    = len,
+        .filesize   = minimum_size,
         .maxprot    = 0x3,
         .initprot   = 0x3,
         .nsects     = 0x1,
@@ -92,9 +101,9 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
     section_64 data_section {
         .sectname   = "__data\0\0\0\0\0\0\0\0\0",
         .segname    = "__DATA\0\0\0\0\0\0\0\0\0",
-        .addr       = 0x100001000,
-        .size       = data_size,
-        .offset     = static_cast<uint32_t> (code_beginning + len),
+        .addr       = page_zero_size + len,
+        .size       = minimum_size,
+        .offset     = static_cast<uint32_t> (len),
         .align      = 0x00000001,
         .reloff     = 0x0,
         .nreloc     = 0x0,
@@ -114,7 +123,7 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
         .rcx       = 0,
         .rdx       = 0,
         .rdi       = 0,
-        .rsi       = code_beginning + len,
+        .rsi       = page_zero_size + len,
         .rbp       = 0,
         .rsp       = 0,
         .r8        = 0,
@@ -125,7 +134,7 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
         .r13       = 0,
         .r14       = 0,
         .r15       = 0,
-        .rip       = 0x100000000 | code_beginning,
+        .rip       = page_zero_size + code_beginning,
         .rflags    = 0,
         .cs        = 0,
         .fs        = 0,
@@ -145,7 +154,7 @@ void make_file (const char* filename, const unsigned char* code, uint64_t len) {
     fwrite (&u_thread,      sizeof (char),  sizeof (unixthread),         executable);
     fwrite (code,           sizeof (char),  len,                         executable);
     //fwrite (&initial_data,  sizeof (char),  data_size,                   executable);
-    for (int i = 0; i < data_size; ++i)
+    for (int i = 0; i < minimum_size; ++i)
         fputc (initial_data, executable);
     
     fclose (executable);

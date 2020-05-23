@@ -7,19 +7,9 @@ start:
 
     	call print
 
-	add rsp, 16
+	mov qword [rbp - 18], rax
+	mov rax, qword [rbp - 18]
 	
-	push 0
-	push 1000h
-	mov rax, [rbp + 100h]
-
-	pop rax
-	mov [rbp + 100h], rax
-
-    	mov rax, 0x2000001
-    	mov rdi, 0
-    	syscall
-
 print:
 	pop rax
 	push rsi

@@ -13,10 +13,11 @@
 b_end::b_end (node *root) {
     code = new unsigned char[max_len];
     main_nd = root;
-    cond_number = 'a';
+    cond_number = 0;
     local_vars = nullptr;
     
     write (commands::call (0, 0), commands::call_size);
+    ++cond_number;
 
     //show_cmd (end_programm)
     cmd (end_programm)
@@ -33,11 +34,6 @@ void b_end::write (const unsigned char cmd[], const int cmd_len) {
     memcpy ((char*) code + len, (char*) cmd, cmd_len);
     ON_DEBUG (printf ("offset: %x\n", 0x250 + len))
     len += cmd_len;
-}
-
-int b_end::new_cond () {
-    cond_number++;
-    return cond_number - 1;
 }
 
 uint32_t b_end::reg_name (node *nd) {
@@ -138,7 +134,7 @@ bool b_end::func_def (node *nd) {
         local_names->initial_ammount++;
     }
     local_vars = local_names;
-    local_vars->print();
+    ON_DEBUG (local_vars->print())
     
     if (nd->right == nullptr) {
         err_info ("problems in backend: func_def (3)\n");
@@ -150,19 +146,27 @@ bool b_end::func_def (node *nd) {
         //write ("\nfunc ");
         //write (id_nd->data);
         //write ("\npushr ax\npush 5\nadd\npopr ax\n\n");
-        
-        commands::funs_ids.insert ({nd->right->data, cond_number});
-        commands::labels.insert ({cond_number, len});
-        ++cond_number;
+
+        if (strncmp (nd->right->data, "reign", 6) == 0) {
+            commands::funs_ids.insert (std::make_pair (nd->right->data, 0));
+            commands::labels.insert ({0, len});
+        }
+        else {
+            commands::funs_ids.insert (std::make_pair (nd->right->data, cond_number));
+            commands::labels.insert ({cond_number, len});
+            ++cond_number;
+        }
         
         //cmd (init_frame)
         write (commands::init_frame (local_vars->initial_ammount), commands::init_frame_size);
         
         //parameters
+        /*
         for (int i = 1; i <= local_vars->amount; ++i) {
             //fprintf (dist, "popm [ax+%d]\n", local_names->initial_ammount - i);
             popm (local_names->initial_ammount - i);
         }
+         */
         //write ("\npushr fx\npush 10\nadd\npopr fx\n");
         
         if (id_nd->right == nullptr) {
@@ -187,21 +191,16 @@ bool b_end::func_return (node *nd) {
         err_info ("problems in backend: func_return (2)\n");
         return false;
     }
-    local_vars->print();
+    ON_DEBUG (local_vars->print())
     
     if (nd->is_right() && nd->right->type == ID) {
         //fprintf (dist, "pushm [ax+%d]\n", local_vars->search_name (nd->right->data));
-        pushm (local_vars->search_name (nd->right->data));
-        //cmd (nop)
+        //pushm (local_vars->search_name (nd->right->data));
+        write (commands::mov_rax_qword_rbp (reg_name (nd->right)), commands::mov_rax_qword_rbp_size);
     }
     
-    /*
-     for (int i = 0; i <= local_vars->initial_ammount; ++i) {
-     fprintf (dist, "pushm [ax+%d]\n", i);
-     }
-     */
-    
     //write ("\npushr ax\npush 5\nsub\npopr ax\n\nret\n");
+    cmd (add_rsp_40)
     cmd (pop_rbp)
     cmd (ret)
     
@@ -231,14 +230,15 @@ bool b_end::func_call (node *nd) {
         
         //write ("call ", nd->right->data, "\n");
         // (new) write (commands::call (commands::funs_ids[nd->right->data], len), commands::call_size);
-        write (commands::call (0, len), commands::call_size);
-        write (commands::add_rsp (num * 8), commands::add_rsp_size);
+        try {
+            write (commands::call (commands::funs_ids[nd->right->data], len), commands::call_size);
+        } catch (...) {
+            printf ("Undefined symbol or reference: %s", nd->right->data);
+            throw std::runtime_error ("no such a function");
+        }
         
-        /*
-         for (int i = 0; i < num; ++i) {
-         fprintf (dist, "popm [ax+%d]\n", i);
-         }
-         */
+        write (commands::add_rsp (num * register_size), commands::add_rsp_size);
+        cmd (push_rax)
     }
     else {
         err_info ("problems in backend: func_call (3)\n");
@@ -264,7 +264,6 @@ bool b_end::variable (node *nd) {
     
     if (nd->left != nullptr) {
         local_vars->append (nd->left->data);
-        //flag
     }
     else {
         err_info ("problems in backend: variable (3)\n");
@@ -372,21 +371,13 @@ bool b_end::assign (node *nd) {
 }
 
 void b_end::pushm (int32_t var_id) {
-    if (var_id < local_vars->initial_ammount)
-        write (commands::mov_rax_qword_rbp (8 * var_id), commands::mov_rax_qword_rbp_size);
-    else
-        write (commands::mov_rax_qword_rbp (8 * (var_id + 2)), commands::mov_rax_qword_rbp_size);
-    
+    write (commands::mov_rax_qword_rbp (var_id), commands::mov_rax_qword_rbp_size);
     cmd (push_rax)
 }
 
 void b_end::popm (int32_t var_id) {
     cmd (pop_rax)
-    
-    if (var_id < local_vars->initial_ammount)
-        write (commands::mov_qword_rbp_rax (8 * var_id), commands::mov_qword_rbp_rax_size);
-    else
-        write (commands::mov_qword_rbp_rax (8 * (var_id + 2)), commands::mov_qword_rbp_rax_size);
+    write (commands::mov_qword_rbp_rax (var_id), commands::mov_qword_rbp_rax_size);
 }
 
 bool b_end::condition (node *nd) {
@@ -614,9 +605,9 @@ bool b_end::increm (node *nd) {
         cmd (pop_rax)
         cmd (inc_rax)
 
-        commands::mov_qword_rbp_rax (8 * reg_name (nd->right));     // 8 - size of register
+        write (commands::mov_qword_rbp_rax (reg_name (nd->right)), commands::mov_qword_rbp_rax_size);
+        
         //write ("]\n");
-        len += commands::mov_qword_rbp_rax_size;
         
         return true;
     }
@@ -643,9 +634,8 @@ bool b_end::decrem (node *nd) {
         //write ("\npush 1\nsub\npopm [ax+");
         cmd (pop_rax)
         cmd (dec_rax)
-        commands::mov_qword_rbp_rax (8 * reg_name (nd->right));     // 8 - size of register
-        //write ("]\n");
-        len += commands::mov_qword_rbp_rax_size;
+        
+        write (commands::mov_qword_rbp_rax (reg_name (nd->right)), commands::mov_qword_rbp_rax_size);
         
         return true;
     }
@@ -751,13 +741,11 @@ bool b_end::equation (node *nd) {
 void b_end::fill_labels () {
     for (unsigned char label = 0; label < cond_number; ++label) {
         try {
-            commands::to_fill.at (label);
-        } catch (std::out_of_range) {
-            ON_DEBUG (printf ("There was no label %d in to_fill\n", label));
-        }
-        
-        try {
-            *reinterpret_cast<int*> (code + commands::to_fill.at (label)) = commands::labels.at (label) - commands::to_fill.at (label);
+            auto range = commands::to_fill.equal_range (label);
+            for (auto element = range.first; element != range.second; ++element) {
+                ON_DEBUG (printf ("Offsets of label %d: %x - %x\n", label, 0x250 + commands::labels.at (label), 0x250 + element->second.next_instruction))
+                *reinterpret_cast<int*> (code + element->second.offset) = commands::labels.at (label) - element->second.next_instruction;
+            }
         }
         catch (std::out_of_range) {
             ON_DEBUG (printf ("There was no label %d in one of two maps\n", label));
@@ -766,14 +754,14 @@ void b_end::fill_labels () {
 }
 
 bool backend (node* nd, const char* program_name) {
-    //FILE* pFile = fopen (program_name, "w");
-    //ASSERT (pFile != nullptr)
-    
     b_end nds = b_end (nd);
     //nds.write ("call reign\nend\n\n");
-    
-    bool were_problems = nds.all ();
-    //fclose (pFile);
+    bool were_problems = false;
+    try {
+        were_problems = nds.all ();
+    } catch (std::runtime_error) {
+        were_problems = false;
+    }
     
     nds.fill_labels ();
     

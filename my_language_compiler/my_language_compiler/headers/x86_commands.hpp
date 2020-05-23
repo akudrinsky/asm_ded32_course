@@ -22,19 +22,37 @@
 
 namespace commands {
     struct label {
-        unsigned char id    = -1;
-        int offset          = -1;
+        int offset              = -1;
+        int next_instruction    = -1;
     };
     
-    std::map<unsigned char, int> labels;                      // here will be data about all found labels
-    std::map<unsigned char, int> to_fill;                     // put when need to fill it later
-    std::map<char*, unsigned char> funs_ids;
+    struct compare {
+        bool operator() (const char* a, const char* b) const {
+            int iter = 0;
+            while (a[iter] == b[iter] and a[iter] != '\0' and a[iter] != '\0') {
+                ++iter;
+            }
+            if ((a[iter] == '\0' and b[iter] != '\0')
+                or (a[iter] != '\0' and b[iter] != '\0' and a[iter] < b[iter])) {
+                return true;
+            }
+            
+            return false;
+        }
+    };
+    
+    std::map<unsigned char, int>    labels;           // here will be data about all found labels
+    std::multimap<unsigned char, label>  to_fill;          // put when need to fill it later
+    std::map<char*, unsigned char, compare>  funs_ids;
     
     static constexpr unsigned char  nop[]               = {0x90};
     static constexpr int            nop_size            = 1;
     
-    static constexpr unsigned char  ret[]               = {0x48, 0x83, 0xc4, 0x40, 0xC3};
-    static constexpr int            ret_size            = 5;
+    static constexpr unsigned char  add_rsp_40[]        = {0x48, 0x83, 0xc4, 0x40};
+    static constexpr int            add_rsp_40_size     = 4;
+    
+    static constexpr unsigned char  ret[]               = {0xC3};
+    static constexpr int            ret_size            = 1;
     
     static constexpr unsigned char  xor_rax_rax[]       = {0x48, 0x31, 0xc0};
     static constexpr int            xor_rax_rax_size    = 3;
@@ -48,7 +66,7 @@ namespace commands {
     static constexpr unsigned char  add_rax_rbx[]       = {0x48, 0x01, 0xd8};
     static constexpr int            add_rax_rbx_size    = 3;
     
-    static constexpr unsigned char  sub_rax_rbx[]       = {0x48, 0x01, 0xd8};
+    static constexpr unsigned char  sub_rax_rbx[]       = {0x48, 0x29, 0xd8};
     static constexpr int            sub_rax_rbx_size    = 3;
     
     static constexpr unsigned char  idiv_rbx[]          = {0x48, 0x01, 0xd8}; /* Signed divide RDX:RAX by rbx, with result stored in RAX ← Quotient, RDX ← Remainder. */
@@ -84,11 +102,12 @@ namespace commands {
     static constexpr unsigned char  end_programm[]      = {0xb8, 0x01, 0x00, 0x00, 0x02, 0xbf, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x05}; /* mov rax, 0x2000001 (5) mov rdi, 0 (5) syscall (2) */
     static constexpr int            end_programm_size   = 12;
     
-    static constexpr unsigned char  out[] = {0x58, 0x56, 0x48, 0x83, 0xc6, 0x09, 0xbb, 0x0a, 0x00, 0x00, 0x00, 0x31, 0xd2, 0xf7, 0xf3, 0x80, 0xc2, 0x30, 0x48, 0xff, 0xce, 0x88, 0x16, 0x85, 0xc0, 0x75, 0xf0, 0xb8, 0x04, 0x00, 0x00, 0x02, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xba, 0x08, 0x00, 0x00, 0x00, 0x0f, 0x05, 0x5e};
+    static constexpr unsigned char  out[] = {0x58, 0x56, 0x48, 0x83, 0xc6, 0x09, 0xc6, 0x06, 0x0a, 0xbb, 0x0a, 0x00, 0x00, 0x00, 0x31, 0xd2, 0xf7, 0xf3, 0x80, 0xc2, 0x30, 0x48, 0xff, 0xce, 0x88, 0x16, 0x85, 0xc0, 0x75, 0xf0, 0xb8, 0x04, 0x00, 0x00, 0x02, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xba, 0x08, 0x00, 0x00, 0x00, 0x0f, 0x05, 0x5e};
     /*
      58                 pop    rax
      56                 push    rsi
      48 83 c6 09        add    rsi, 9
+     c6 06 0a           mov    [rsi], '\n'
      bb 0a 00 00 00     mov    ebx, 10
      .next_digit:
      31 d2              xor    edx, edx
@@ -104,7 +123,7 @@ namespace commands {
      0f 05              syscall
      5e                 pop    rsi
      */
-    static constexpr int            out_size    = 45;
+    static constexpr int            out_size    = 48;
     
     static constexpr int            ja_size             = 6;
     static constexpr int            jae_size            = 6;
@@ -118,49 +137,49 @@ namespace commands {
     
     unsigned const char* ja (unsigned char id, int offset) {
         static unsigned char data[] = {0x0f, 0x87, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 2});
+        commands::to_fill.insert ({id, {offset + 2, offset + ja_size}});
         return data;
     };
     
     unsigned const char* jae (unsigned char id, int offset) {
         static unsigned char data[] = {0x0f, 0x83, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 2});
+        commands::to_fill.insert ({id, {offset + 2, offset + jae_size}});
         return data;
     };
     
     unsigned const char* jb (unsigned char id, int offset) {
         static unsigned char data[] = {0x0f, 0x82, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 2});
+        commands::to_fill.insert ({id, {offset + 2, offset + jb_size}});
         return data;
     };
     
     unsigned const char* jbe (unsigned char id, int offset) {
         static unsigned char data[] = {0x0f, 0x86, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 2});
+        commands::to_fill.insert ({id, {offset + 2, offset + jbe_size}});
         return data;
     };
     
     unsigned const char* je (unsigned char id, int offset) {
         static unsigned char data[] = {0x0f, 0x84, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 2});
+        commands::to_fill.insert ({id, {offset + 2, offset + je_size}});
         return data;
     };
     
     unsigned const char* jne (unsigned char id, int offset) {
         static unsigned char data[] = {0x0f, 0x85, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 2});
+        commands::to_fill.insert ({id, {offset + 2, offset + jne_size}});
         return data;
     };
     
     unsigned const char* jmp (unsigned char id, int offset) {
-        static unsigned char data[] = {0x0f, 0x85, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 2});
+        static unsigned char data[] = {0xe9, 0x00, 0x00, 0x00, 0x00};
+        commands::to_fill.insert ({id, {offset + 1, offset + jmp_size}});
         return data;
     };
     
     unsigned const char* call (unsigned char id, int offset) {
         static unsigned char data[] = {0xe8, 0x00, 0x00, 0x00, 0x00};
-        commands::to_fill.insert ({id, offset + 1});
+        commands::to_fill.insert ({id, {offset + 1, offset + call_size}});
         return data;
     };
     
@@ -171,18 +190,18 @@ namespace commands {
     };
     
     unsigned const char* mov_qword_rbp_rax (int32_t number) {
-        static unsigned char data[] = {0x48, 0x89, 0x85, 0x00, 0x00, 0x00, 0x00};
-        data[3] = number;
+        static unsigned char data[] = {0x48, 0x89, 0x45, 0x00};
+        data[3] = (unsigned char) 0x100 - 8 * ((unsigned char) number);
         return data;
     };
-    static constexpr int mov_qword_rbp_rax_size = 7;
+    static constexpr int mov_qword_rbp_rax_size = 4;
     
     unsigned const char* mov_rax_qword_rbp (int32_t number) {
-        static unsigned char data[] = {0x48, 0x8b, 0x85, 0x00, 0x00, 0x00, 0x00};
-        data[3] = number;
+        static unsigned char data[] = {0x48, 0x8b, 0x45, 0x00};
+        data[3] = (unsigned char) 0x100 - 8 * ((unsigned char) number);
         return data;
     };
-    static constexpr int mov_rax_qword_rbp_size = 7;
+    static constexpr int mov_rax_qword_rbp_size = 4;
     
     unsigned const char* push_num (int32_t number) {
         static unsigned char data[] = {0x68, 0x00, 0x00, 0x00, 0x00};
@@ -191,9 +210,9 @@ namespace commands {
     };
     static constexpr int push_num_size = 5;
     
-    unsigned const char* init_frame (unsigned char number) {
+    unsigned const char* init_frame (unsigned char number_of_func_params) {
         static unsigned char data[] = {0x55, 0x48, 0x89, 0xe5, 0x48, 0x83, 0xc5, 0x00, 0x48, 0x83, 0xec, 0x40};
-        data[7] = 8 * (number + 2);
+        data[7] = 8 * (number_of_func_params + 2);
         return data;
     };
     
