@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1C6943C8247167F000885A3B /* backend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943C7247167EF00885A3B /* backend.cpp */; };
-		1C6943CD2471682600885A3B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943CC2471682600885A3B /* main.cpp */; };
-		1C6943D02471685600885A3B /* frontend-1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943CF2471685600885A3B /* frontend-1.cpp */; };
-		1C6943D42471687900885A3B /* frontend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943D32471687900885A3B /* frontend.cpp */; };
-		1C6943D62471687F00885A3B /* my_lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943D52471687E00885A3B /* my_lib.cpp */; };
-		1C6943DA2471688600885A3B /* stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943D92471688600885A3B /* stack.cpp */; };
-		1C6943DC2471688900885A3B /* tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943DB2471688900885A3B /* tokenizer.cpp */; };
-		1C6943DF2471688E00885A3B /* tokens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C6943DE2471688E00885A3B /* tokens.cpp */; };
+		1C69448C247A3258004C3EF9 /* frontend-1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694485247A3258004C3EF9 /* frontend-1.cpp */; };
+		1C69448D247A3258004C3EF9 /* frontend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694486247A3258004C3EF9 /* frontend.cpp */; };
+		1C69448E247A3258004C3EF9 /* backend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694487247A3258004C3EF9 /* backend.cpp */; };
+		1C69448F247A3258004C3EF9 /* stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694488247A3258004C3EF9 /* stack.cpp */; };
+		1C694490247A3258004C3EF9 /* tokens.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694489247A3258004C3EF9 /* tokens.cpp */; };
+		1C694491247A3258004C3EF9 /* my_lib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C69448A247A3258004C3EF9 /* my_lib.cpp */; };
+		1C694492247A3258004C3EF9 /* tokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C69448B247A3258004C3EF9 /* tokenizer.cpp */; };
+		1C694494247A32D1004C3EF9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694493247A32D1004C3EF9 /* main.cpp */; };
 		1C9B6C82247169B400AC3929 /* tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9B6C80247169B400AC3929 /* tree.cpp */; };
 		1C9B6C872471858E00AC3929 /* make_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C9B6C852471858D00AC3929 /* make_file.cpp */; };
 /* End PBXBuildFile section */
@@ -33,25 +33,25 @@
 
 /* Begin PBXFileReference section */
 		1C6943BB2471674600885A3B /* my_language_compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = my_language_compiler; sourceTree = BUILT_PRODUCTS_DIR; };
-		1C6943C7247167EF00885A3B /* backend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = backend.cpp; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/backend.cpp"; sourceTree = "<absolute>"; };
-		1C6943CC2471682600885A3B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "my_language_compiler.xcodeproj/../../compiler/macho-compile/main.cpp"; sourceTree = SOURCE_ROOT; };
-		1C6943CE2471683A00885A3B /* backend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = backend.h; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/backend.h"; sourceTree = "<absolute>"; };
-		1C6943CF2471685600885A3B /* frontend-1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "frontend-1.cpp"; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend-1.cpp"; sourceTree = "<absolute>"; };
-		1C6943D12471685800885A3B /* frontend-1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "frontend-1.h"; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend-1.h"; sourceTree = "<absolute>"; };
-		1C6943D22471687500885A3B /* frontend.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = frontend.h; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend.h"; sourceTree = "<absolute>"; };
-		1C6943D32471687900885A3B /* frontend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = frontend.cpp; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/frontend.cpp"; sourceTree = "<absolute>"; };
-		1C6943D52471687E00885A3B /* my_lib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = my_lib.cpp; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/my_lib.cpp"; sourceTree = "<absolute>"; };
-		1C6943D72471688100885A3B /* my_lyb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = my_lyb.h; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/my_lyb.h"; sourceTree = "<absolute>"; };
-		1C6943D82471688400885A3B /* operations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = operations.h; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/operations.h"; sourceTree = "<absolute>"; };
-		1C6943D92471688600885A3B /* stack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = stack.cpp; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/stack.cpp"; sourceTree = "<absolute>"; };
-		1C6943DB2471688900885A3B /* tokenizer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tokenizer.cpp; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokenizer.cpp"; sourceTree = "<absolute>"; };
-		1C6943DD2471688C00885A3B /* tokenizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tokenizer.h; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokenizer.h"; sourceTree = "<absolute>"; };
-		1C6943DE2471688E00885A3B /* tokens.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tokens.cpp; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokens.cpp"; sourceTree = "<absolute>"; };
-		1C6943E02471689000885A3B /* tokens.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tokens.h; path = "/Users/alexeykudrinsky/Documents/MIPT/1 course/assembly/my_language_compiler/my_language_compiler/tokens.h"; sourceTree = "<absolute>"; };
+		1C69447D247A3245004C3EF9 /* tokens.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tokens.h; sourceTree = "<group>"; };
+		1C69447E247A3245004C3EF9 /* backend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = backend.h; sourceTree = "<group>"; };
+		1C69447F247A3245004C3EF9 /* make_file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = make_file.hpp; sourceTree = "<group>"; };
+		1C694480247A3245004C3EF9 /* my_lyb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = my_lyb.h; sourceTree = "<group>"; };
+		1C694481247A3245004C3EF9 /* tokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tokenizer.h; sourceTree = "<group>"; };
+		1C694482247A3245004C3EF9 /* operations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = operations.h; sourceTree = "<group>"; };
+		1C694483247A3245004C3EF9 /* frontend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = frontend.h; sourceTree = "<group>"; };
+		1C694484247A3245004C3EF9 /* frontend-1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "frontend-1.h"; sourceTree = "<group>"; };
+		1C694485247A3258004C3EF9 /* frontend-1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "frontend-1.cpp"; sourceTree = "<group>"; };
+		1C694486247A3258004C3EF9 /* frontend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = frontend.cpp; sourceTree = "<group>"; };
+		1C694487247A3258004C3EF9 /* backend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = backend.cpp; sourceTree = "<group>"; };
+		1C694488247A3258004C3EF9 /* stack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stack.cpp; sourceTree = "<group>"; };
+		1C694489247A3258004C3EF9 /* tokens.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tokens.cpp; sourceTree = "<group>"; };
+		1C69448A247A3258004C3EF9 /* my_lib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = my_lib.cpp; sourceTree = "<group>"; };
+		1C69448B247A3258004C3EF9 /* tokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tokenizer.cpp; sourceTree = "<group>"; };
+		1C694493247A32D1004C3EF9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		1C9B6C80247169B400AC3929 /* tree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tree.cpp; sourceTree = "<group>"; };
 		1C9B6C81247169B400AC3929 /* tree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tree.hpp; sourceTree = "<group>"; };
 		1C9B6C852471858D00AC3929 /* make_file.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = make_file.cpp; path = "my_language_compiler/cpp's/make_file.cpp"; sourceTree = SOURCE_ROOT; };
-		1C9B6C862471858E00AC3929 /* make_file.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = make_file.hpp; path = my_language_compiler/make_file.hpp; sourceTree = SOURCE_ROOT; };
 		1C9B6C8924718D0900AC3929 /* x86_commands.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = x86_commands.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,7 +85,7 @@
 		1C6943BD2471674600885A3B /* my_language_compiler */ = {
 			isa = PBXGroup;
 			children = (
-				1C6943CC2471682600885A3B /* main.cpp */,
+				1C694493247A32D1004C3EF9 /* main.cpp */,
 				1C9B6C842471731300AC3929 /* headers */,
 				1C9B6C83247172DD00AC3929 /* cpp's */,
 			);
@@ -95,15 +95,15 @@
 		1C9B6C83247172DD00AC3929 /* cpp's */ = {
 			isa = PBXGroup;
 			children = (
-				1C6943C7247167EF00885A3B /* backend.cpp */,
-				1C6943D32471687900885A3B /* frontend.cpp */,
-				1C6943CF2471685600885A3B /* frontend-1.cpp */,
 				1C9B6C852471858D00AC3929 /* make_file.cpp */,
-				1C6943D52471687E00885A3B /* my_lib.cpp */,
-				1C6943DB2471688900885A3B /* tokenizer.cpp */,
-				1C6943DE2471688E00885A3B /* tokens.cpp */,
+				1C694487247A3258004C3EF9 /* backend.cpp */,
+				1C694485247A3258004C3EF9 /* frontend-1.cpp */,
+				1C694486247A3258004C3EF9 /* frontend.cpp */,
+				1C69448A247A3258004C3EF9 /* my_lib.cpp */,
+				1C694488247A3258004C3EF9 /* stack.cpp */,
+				1C69448B247A3258004C3EF9 /* tokenizer.cpp */,
+				1C694489247A3258004C3EF9 /* tokens.cpp */,
 				1C9B6C80247169B400AC3929 /* tree.cpp */,
-				1C6943D92471688600885A3B /* stack.cpp */,
 			);
 			path = "cpp's";
 			sourceTree = "<group>";
@@ -111,15 +111,15 @@
 		1C9B6C842471731300AC3929 /* headers */ = {
 			isa = PBXGroup;
 			children = (
-				1C6943CE2471683A00885A3B /* backend.h */,
-				1C6943D22471687500885A3B /* frontend.h */,
-				1C6943D12471685800885A3B /* frontend-1.h */,
-				1C9B6C862471858E00AC3929 /* make_file.hpp */,
-				1C6943D72471688100885A3B /* my_lyb.h */,
-				1C6943D82471688400885A3B /* operations.h */,
-				1C6943DD2471688C00885A3B /* tokenizer.h */,
-				1C6943E02471689000885A3B /* tokens.h */,
 				1C9B6C81247169B400AC3929 /* tree.hpp */,
+				1C69447E247A3245004C3EF9 /* backend.h */,
+				1C694484247A3245004C3EF9 /* frontend-1.h */,
+				1C694483247A3245004C3EF9 /* frontend.h */,
+				1C69447F247A3245004C3EF9 /* make_file.hpp */,
+				1C694480247A3245004C3EF9 /* my_lyb.h */,
+				1C694482247A3245004C3EF9 /* operations.h */,
+				1C694481247A3245004C3EF9 /* tokenizer.h */,
+				1C69447D247A3245004C3EF9 /* tokens.h */,
 				1C9B6C8924718D0900AC3929 /* x86_commands.hpp */,
 			);
 			path = headers;
@@ -181,16 +181,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1C6943C8247167F000885A3B /* backend.cpp in Sources */,
 				1C9B6C872471858E00AC3929 /* make_file.cpp in Sources */,
-				1C6943DC2471688900885A3B /* tokenizer.cpp in Sources */,
+				1C69448F247A3258004C3EF9 /* stack.cpp in Sources */,
+				1C694491247A3258004C3EF9 /* my_lib.cpp in Sources */,
+				1C69448C247A3258004C3EF9 /* frontend-1.cpp in Sources */,
 				1C9B6C82247169B400AC3929 /* tree.cpp in Sources */,
-				1C6943DA2471688600885A3B /* stack.cpp in Sources */,
-				1C6943D02471685600885A3B /* frontend-1.cpp in Sources */,
-				1C6943CD2471682600885A3B /* main.cpp in Sources */,
-				1C6943D42471687900885A3B /* frontend.cpp in Sources */,
-				1C6943D62471687F00885A3B /* my_lib.cpp in Sources */,
-				1C6943DF2471688E00885A3B /* tokens.cpp in Sources */,
+				1C694492247A3258004C3EF9 /* tokenizer.cpp in Sources */,
+				1C69448D247A3258004C3EF9 /* frontend.cpp in Sources */,
+				1C69448E247A3258004C3EF9 /* backend.cpp in Sources */,
+				1C694494247A32D1004C3EF9 /* main.cpp in Sources */,
+				1C694490247A3258004C3EF9 /* tokens.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

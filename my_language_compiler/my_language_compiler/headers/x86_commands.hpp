@@ -191,6 +191,7 @@ namespace commands {
     
     unsigned const char* mov_qword_rbp_rax (int32_t number) {
         static unsigned char data[] = {0x48, 0x89, 0x45, 0x00};
+        printf ("nmb %d, %d\n", number, 0x100 - 8 * ((unsigned char) number));
         data[3] = (unsigned char) 0x100 - 8 * ((unsigned char) number);
         return data;
     };
@@ -198,6 +199,7 @@ namespace commands {
     
     unsigned const char* mov_rax_qword_rbp (int32_t number) {
         static unsigned char data[] = {0x48, 0x8b, 0x45, 0x00};
+        printf ("nmb %d, %d\n", number, 0x100 - 8 * ((unsigned char) number));
         data[3] = (unsigned char) 0x100 - 8 * ((unsigned char) number);
         return data;
     };

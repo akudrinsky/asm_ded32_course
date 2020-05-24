@@ -1,5 +1,5 @@
 all: to_egor
-	./to_egor
+	strip to_egor
 
 to_egor.o: to_egor.asm
 	/usr/local/bin/nasm -f macho64 to_egor.asm

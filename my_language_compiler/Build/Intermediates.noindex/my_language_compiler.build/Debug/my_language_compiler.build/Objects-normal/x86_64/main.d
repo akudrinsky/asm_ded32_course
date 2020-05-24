@@ -1,9 +1,9 @@
 dependencies: \
-  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/compiler/macho-compile/main.cpp \
-  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/backend.h \
+  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/main.cpp \
+  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/headers/backend.h \
   /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/headers/tree.hpp \
-  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/my_lyb.h \
-  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/operations.h \
-  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/tokens.h \
-  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/make_file.hpp \
-  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/frontend-1.h
+  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/headers/my_lyb.h \
+  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/headers/operations.h \
+  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/headers/tokens.h \
+  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/headers/make_file.hpp \
+  /Users/alexeykudrinsky/Documents/MIPT/1\ course/assembly/my_language_compiler/my_language_compiler/headers/frontend-1.h

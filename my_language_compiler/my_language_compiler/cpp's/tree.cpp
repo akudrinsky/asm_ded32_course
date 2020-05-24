@@ -14,12 +14,12 @@
 #include <math.h>
 #include <new>
 
-#include "tree.hpp"
-#include "my_lyb.h"
-#include "operations.h"
-#include "tokenizer.h"
-#include "frontend.h"
-#include "frontend-1.h"
+#include "../headers/tree.hpp"
+#include "../headers/my_lyb.h"
+#include "../headers/operations.h"
+#include "../headers/tokenizer.h"
+#include "../headers/frontend.h"
+#include "../headers/frontend-1.h"
 
 /*
 #define DEBUG

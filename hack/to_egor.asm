@@ -2,8 +2,8 @@ global start
 
 section .text
 
-%macro print_str 0x2000004
-		mov rax, 1
+%macro print_str 2
+		mov rax, 0x2000004
 		mov rdi, 1
 		mov rsi, %1
 		mov rdx, %2
