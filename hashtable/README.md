@@ -6,8 +6,8 @@ name of hash function  |   in what language the hash function was written   |   
 --- | --- | --- | --- | --- | --- 
 murmur | c | O0 | no | 54.63 | 29.85
 murmur |  c  | O3 | yes | 35.59 | 12.49
-crc32(1)sse | -  | yes   |   35.25    |  10.73
-crc32(4)sse   |  -  |  no  |  37.47  |  8.06    
+crc32(1) | sse | -  | yes   |   35.25    |  10.73
+crc32(4) | sse   |  -  |  no  |  37.47  |  8.06    
 crc32     |         c    |O3   | yes  |  38.37 |   15.79
 murmur       |   asm  |  -   | yes   | 37.10   | 11.42
 murmur     |     asm  |  O3   | no   | 38.34  |  10.75
