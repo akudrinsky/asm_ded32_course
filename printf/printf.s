@@ -317,7 +317,6 @@ format:		db "I %s %x %d%%%c%b", 10, 0
 string:		db "love", 0
 symbol:		db '?'
 
-; (98) b (0) c (0) d (10) o (3) s (1) u (2) x
 jump_table:
 times 98 dq backprint.next
 dq          backprint.binary
@@ -329,4 +328,4 @@ times 3  dq backprint.next
 dq          backprint.str
 times 2  dq backprint.next
 dq          backprint.hex
-times 2  dq backprint.next          ; in case user doesn't know that %y, %z matter nothing
+times 138 dq backprint.next          ; in case user doesn't know that the rest of ASCII symbols matter nothing

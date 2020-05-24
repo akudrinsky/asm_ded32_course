@@ -3,4 +3,4 @@ Simple analogue of printf in C language, written in nasm assembly for MacOS (in 
 
 It is relatively fast because I use jump table inside to switch among different '%' options. List of supported options: %c, %s, %d, %u, %b (binary), %o, %x, %%. 
 
-One unit test is available.
+One unit test is available. Function is safe (here it means that it won't crash when %<undefined symbol> is called).
