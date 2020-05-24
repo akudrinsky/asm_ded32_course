@@ -11,12 +11,9 @@
 #pragma GCC diagnostic error "-Wold-style-cast"
 
 int main (int argc, const char* argv[]) {
-    /*
-    mix_bmp ("data/Table.bmp", "data/AskhatCat.bmp", "data/merged.bmp",
-             280, 100);
-     */
-    compare_cycles comparator ("data/Table.bmp", "data/AskhatCat.bmp", "data/merged.bmp",
-                               280, 100);
+    mix_bmp ("data/Table.bmp", "data/AskhatCat.bmp", "data/merged.bmp", 280, 100);
+    
+    //compare_cycles ("data/Table.bmp", "data/AskhatCat.bmp", "data/merged.bmp", 280, 100);
     
     return 0;
 }

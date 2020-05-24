@@ -17,6 +17,8 @@
 #include <emmintrin.h>
 #include <smmintrin.h>
 
+int Global_effect = 0;
+
 struct bmp_format {
     const char* pixels = nullptr;
     int width = 0;
@@ -131,126 +133,109 @@ void mix_bmp (const char* base_image, const char* top_image, const char* result_
     free ((void*) top_data);
 }
 
-struct compare_cycles {
+void cycle_sse (bmp_format top, bmp_format base) {
+    static const int pixel_size = 4;
+    static const __m128i get_alpha_low  = _mm_set_epi8 (0xFF,  7, 0xFF,  7,
+                                                        0xFF,  7, 0xFF,  7,
+                                                        0xFF,  3, 0xFF,  3,
+                                                        0xFF,  3, 0xFF,  3);
+    
+    static const __m128i get_alpha_high = _mm_set_epi8 (0xFF, 15, 0xFF, 15,
+                                                        0xFF, 15, 0xFF, 15,
+                                                        0xFF, 11, 0xFF, 11,
+                                                        0xFF, 11, 0xFF, 11);
+    
+    static const __m128i ones           = _mm_set_epi8 (0xFF, 0xFF, 0xFF, 0xFF,
+                                                        0xFF, 0xFF, 0xFF, 0xFF,
+                                                        0xFF, 0xFF, 0xFF, 0xFF,
+                                                        0xFF, 0xFF, 0xFF, 0xFF);
+    for (int y = 0; y < top.height; ++y) {
+        for (int x = 0; x < top.width; x += 4) {
+            __m128i front_pixel = _mm_loadu_si128 (reinterpret_cast<const __m128i*> (top.pixels  + pixel_size * x));
+            __m128i back_pixel  = _mm_loadu_si128 (reinterpret_cast<const __m128i*> (base.pixels + pixel_size * x));
+            
+            __m128i back_top_two = _mm_movehl_ps (back_pixel, back_pixel); // неявное приведение типов
+            
+            __m128i back_bot_two_16 = _mm_cvtepu8_epi16 (back_pixel);
+            __m128i back_top_two_16 = _mm_cvtepu8_epi16 (back_top_two);
+            
+            __m128i front_alpha_low  = _mm_shuffle_epi8 (front_pixel, get_alpha_low);
+            __m128i front_alpha_high = _mm_shuffle_epi8 (front_pixel, get_alpha_high);
+            
+            __m128i back_coefs_low  = _mm_sub_epi8 (ones, front_alpha_low);
+            __m128i back_coefs_high = _mm_sub_epi8 (ones, front_alpha_high);
+            
+            __m128i back_new_low  = _mm_mulhi_epu16  (back_bot_two_16, back_coefs_low);
+            __m128i back_new_high = _mm_mulhi_epu16  (back_top_two_16, back_coefs_high);
+            
+            __m128i back_new = _mm_packus_epi16 (back_new_low, back_new_high);
+            
+            back_new = _mm_adds_epi8 (front_pixel, back_new);
+            
+            _mm_storeu_si128 ((__m128i*) (base.pixels + pixel_size * x), back_new);
+        }
+        top.pixels  += pixel_size * top.width;
+        base.pixels += pixel_size * base.width;
+        ++Global_effect;
+    }
+}
+
+void cycle_ordinary (bmp_format top, bmp_format base) __attribute__ ((noinline)) {
+    static const int pixel_size = 4;
+    
+    for (int y = 0; y < top.height; ++y) {
+        for (int x = 0; x < top.width; ++x) {
+            //printf ("%d * %d\n", x, y);
+            char top_pixel[4]  = {};
+            char back_pixel[4] = {};
+            
+            memcpy (top_pixel,  top.pixels  + pixel_size * x, 4);
+            memcpy (back_pixel, base.pixels + pixel_size * x, 4);
+            
+            for (int color = 0; color < 3; ++color) {
+                back_pixel[color] = top_pixel[3] * top_pixel[color]
+                + (0xFF - top_pixel[3]) * back_pixel[color];
+            }
+            
+            memcpy ((void*) (base.pixels + pixel_size * x), back_pixel, 4);
+        }
+        top.pixels  += pixel_size * top.width;
+        base.pixels += pixel_size * base.width;
+        ++Global_effect;
+    }
+}
+
+void compare_cycles (const char* base_image, const char* top_image, const char* result_image,
+                int x_coord = 0, int y_coord = 0) {
+    const char* base_data = read_text (base_image);
+    const char* top_data  = read_text (top_image);
+    
+    static const int pixel_size = 4;
     bmp_format base = {};
     bmp_format top  = {};
-    static const int pixel_size = 4;
-    int something = 0;
     
-    compare_cycles () = delete;
-    
-    compare_cycles (const char* base_image, const char* top_image, const char* result_image,
-                    int x_coord = 0, int y_coord = 0) {
-        const char* base_data = read_text (base_image);
-        const char* top_data  = read_text (top_image);
+    try {
+        base = get_bmp_structure (base_data);
+        base.pixels += pixel_size * (y_coord * base.width + x_coord);
         
-        try {
-            base = get_bmp_structure (base_data);
-            base.pixels += pixel_size * (y_coord * base.width + x_coord);
-            
-            top  = get_bmp_structure (top_data);
-        }
-        catch (const char* err) {
-            free ((void*) base_data);
-            free ((void*) top_data);
-            
-            printf ("%s\n", err);
-            
-            return;
-        }
-
-        compare ();
-
+        top  = get_bmp_structure (top_data);
+    }
+    catch (const char* err) {
         free ((void*) base_data);
         free ((void*) top_data);
-    }
-    
-    ~compare_cycles () {}
-    
-    void compare () {
-        const char* old_top  = top.pixels;
-        const char* old_base = base.pixels;
         
-        for (int i = 0; i < 1000000; ++i) {
-            cycle_sse ();
-            base.pixels = old_base;
-            top.pixels  = old_top;
-            
-            cycle_ordinary ();
-            base.pixels = old_base;
-            top.pixels  = old_top;
-        }
-        printf ("%d", something);
+        printf ("%s\n", err);
+        return;
     }
     
-    void cycle_sse () {
-        static const __m128i get_alpha_low  = _mm_set_epi8 (0xFF,  7, 0xFF,  7,
-                                                            0xFF,  7, 0xFF,  7,
-                                                            0xFF,  3, 0xFF,  3,
-                                                            0xFF,  3, 0xFF,  3);
-        
-        static const __m128i get_alpha_high = _mm_set_epi8 (0xFF, 15, 0xFF, 15,
-                                                            0xFF, 15, 0xFF, 15,
-                                                            0xFF, 11, 0xFF, 11,
-                                                            0xFF, 11, 0xFF, 11);
-        
-        static const __m128i ones           = _mm_set_epi8 (0xFF, 0xFF, 0xFF, 0xFF,
-                                                            0xFF, 0xFF, 0xFF, 0xFF,
-                                                            0xFF, 0xFF, 0xFF, 0xFF,
-                                                            0xFF, 0xFF, 0xFF, 0xFF);
-        for (int y = 0; y < top.height; ++y) {
-            for (int x = 0; x < top.width; x += 4) {
-                __m128i front_pixel = _mm_loadu_si128 (reinterpret_cast<const __m128i*> (top.pixels  + pixel_size * x));
-                __m128i back_pixel  = _mm_loadu_si128 (reinterpret_cast<const __m128i*> (base.pixels + pixel_size * x));
-                
-                __m128i back_top_two = _mm_movehl_ps (back_pixel, back_pixel); // неявное приведение типов
-                
-                __m128i back_bot_two_16 = _mm_cvtepu8_epi16 (back_pixel);
-                __m128i back_top_two_16 = _mm_cvtepu8_epi16 (back_top_two);
-                
-                __m128i front_alpha_low  = _mm_shuffle_epi8 (front_pixel, get_alpha_low);
-                __m128i front_alpha_high = _mm_shuffle_epi8 (front_pixel, get_alpha_high);
-                
-                __m128i back_coefs_low  = _mm_sub_epi8 (ones, front_alpha_low);
-                __m128i back_coefs_high = _mm_sub_epi8 (ones, front_alpha_high);
-                
-                __m128i back_new_low  = _mm_mulhi_epu16  (back_bot_two_16, back_coefs_low);
-                __m128i back_new_high = _mm_mulhi_epu16  (back_top_two_16, back_coefs_high);
-                
-                __m128i back_new = _mm_packus_epi16 (back_new_low, back_new_high);
-                
-                back_new = _mm_adds_epi8 (front_pixel, back_new);
-                
-                _mm_storeu_si128 ((__m128i*) (base.pixels + pixel_size * x), back_new);
-            }
-            top.pixels  += pixel_size * top.width;
-            base.pixels += pixel_size * base.width;
-        }
+    for (int i = 0; i < 200000; ++i) {
+        cycle_sse (top, base);
+        cycle_ordinary (top, base);
     }
+    printf ("%d\n", Global_effect);
     
-    void cycle_ordinary () {
-        for (int y = 0; y < top.height; ++y) {
-            for (int x = 0; x < top.width; ++x) {
-                //printf ("%d * %d\n", x, y);
-                char top_pixel[4]  = {};
-                char back_pixel[4] = {};
-                
-                strncmp (top_pixel,  top.pixels  + pixel_size * x, 4);
-                strncmp (back_pixel, base.pixels + pixel_size * x, 4);
-                
-                for (int color = 0; color < 3; ++color) {
-                    back_pixel[color] = top_pixel[3] * top_pixel[color]
-                                        + (0xFF - top_pixel[3]) * back_pixel[color];
-                }
-                
-                strncmp (base.pixels + pixel_size * x, back_pixel, 4);
-                
-                something   += *base.pixels;
-            }
-            top.pixels  += pixel_size * top.width;
-            base.pixels += pixel_size * base.width;
-        }
-    }
-};
+    free ((void*) base_data);
+    free ((void*) top_data);
+}
 
 #endif /* image_mixer_hpp */
