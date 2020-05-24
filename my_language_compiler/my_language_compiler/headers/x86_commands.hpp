@@ -99,30 +99,31 @@ namespace commands {
     static constexpr unsigned char  cmp_rax_rbx[]       = {0x48, 0x39, 0xd8};
     static constexpr int            cmp_rax_rbx_size    = 3;
     
-    static constexpr unsigned char  end_programm[]      = {0xb8, 0x01, 0x00, 0x00, 0x02, 0xbf, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x05}; /* mov rax, 0x2000001 (5) mov rdi, 0 (5) syscall (2) */
+    static constexpr unsigned char  end_programm[]      = {
+        0xb8, 0x01, 0x00, 0x00, 0x02,   // mov rax, 0x2000001
+        0xbf, 0x00, 0x00, 0x00, 0x00,   // mov rdi, 0
+        0x0f, 0x05};                    // syscall
     static constexpr int            end_programm_size   = 12;
     
-    static constexpr unsigned char  out[] = {0x58, 0x56, 0x48, 0x83, 0xc6, 0x09, 0xc6, 0x06, 0x0a, 0xbb, 0x0a, 0x00, 0x00, 0x00, 0x31, 0xd2, 0xf7, 0xf3, 0x80, 0xc2, 0x30, 0x48, 0xff, 0xce, 0x88, 0x16, 0x85, 0xc0, 0x75, 0xf0, 0xb8, 0x04, 0x00, 0x00, 0x02, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xba, 0x08, 0x00, 0x00, 0x00, 0x0f, 0x05, 0x5e};
-    /*
-     58                 pop    rax
-     56                 push    rsi
-     48 83 c6 09        add    rsi, 9
-     c6 06 0a           mov    [rsi], '\n'
-     bb 0a 00 00 00     mov    ebx, 10
-     .next_digit:
-     31 d2              xor    edx, edx
-     f7 f3              div    ebx
-     80 c2 30           add    dl, 48
-     48 ff ce           dec    rsi
-     88 16              mov    byte ptr [rsi], dl
-     85 c0              test    eax, eax
-     75 f0              jne    -16 <.next_digit>
-     b8 04 00 00 02     mov    eax, 33554436
-     bf 01 00 00 00     mov    edi, 1
-     ba 08 00 00 00     mov    edx, 8
-     0f 05              syscall
-     5e                 pop    rsi
-     */
+    static constexpr unsigned char  out[] = {
+        0x58,                           // pop    rax
+        0x56,                           // push    rsi
+        0x48, 0x83, 0xc6, 0x09,         // add    rsi, 9
+        0xc6, 0x06, 0x0a,               // mov    [rsi], '\n'
+        0xbb, 0x0a, 0x00, 0x00, 0x00,   // mov    ebx, 10
+        //.next_digit
+        0x31, 0xd2,                     // xor    edx, edx
+        0xf7, 0xf3,                     // div    ebx
+        0x80, 0xc2, 0x30,               // add    dl, 48
+        0x48, 0xff, 0xce,               // dec    rsi
+        0x88, 0x16,                     // mov    byte ptr [rsi], dl
+        0x85, 0xc0,                     // test    eax, eax
+        0x75, 0xf0,                     // jne    -16 <.next_digit>
+        0xb8, 0x04, 0x00, 0x00, 0x02,   // mov    eax, 0x2000004
+        0xbf, 0x01, 0x00, 0x00, 0x00,   // mov    edi, 1
+        0xba, 0x08, 0x00, 0x00, 0x00,   // mov    edx, 8
+        0x0f, 0x05,                     // syscall
+        0x5e};                          // pop    rsi
     static constexpr int            out_size    = 48;
     
     static constexpr int            ja_size             = 6;
@@ -191,7 +192,7 @@ namespace commands {
     
     unsigned const char* mov_qword_rbp_rax (int32_t number) {
         static unsigned char data[] = {0x48, 0x89, 0x45, 0x00};
-        printf ("nmb %d, %d\n", number, 0x100 - 8 * ((unsigned char) number));
+        ON_DEBUG (printf ("nmb %d, %d\n", number, 0x100 - 8 * ((unsigned char) number)))
         data[3] = (unsigned char) 0x100 - 8 * ((unsigned char) number);
         return data;
     };
@@ -199,11 +200,18 @@ namespace commands {
     
     unsigned const char* mov_rax_qword_rbp (int32_t number) {
         static unsigned char data[] = {0x48, 0x8b, 0x45, 0x00};
-        printf ("nmb %d, %d\n", number, 0x100 - 8 * ((unsigned char) number));
+        ON_DEBUG (printf ("nmb %d, %d\n", number, 0x100 - 8 * ((unsigned char) number)))
         data[3] = (unsigned char) 0x100 - 8 * ((unsigned char) number);
         return data;
     };
     static constexpr int mov_rax_qword_rbp_size = 4;
+    
+    unsigned const char* mov_rax (int32_t number) {
+        static unsigned char data[] = {0xb8, 0x00, 0x00, 0x00, 0x00};
+        data[1] = number;
+        return data;
+    };
+    static constexpr int mov_rax_size = 5;
     
     unsigned const char* push_num (int32_t number) {
         static unsigned char data[] = {0x68, 0x00, 0x00, 0x00, 0x00};
@@ -213,8 +221,12 @@ namespace commands {
     static constexpr int push_num_size = 5;
     
     unsigned const char* init_frame (unsigned char number_of_func_params) {
-        static unsigned char data[] = {0x55, 0x48, 0x89, 0xe5, 0x48, 0x83, 0xc5, 0x00, 0x48, 0x83, 0xec, 0x40};
-        data[7] = 8 * (number_of_func_params + 2);
+        static unsigned char data[] = {
+            0x55,                               // push rbp
+            0x48, 0x89, 0xe5,                   // mov rbp, rsp
+            0x48, 0x83, 0xc5, 0x00,             // add rbp, <fill later>
+            0x48, 0x83, 0xec, 0x40};            // sub rsp, 0x40 (so five local vars max)
+        data[7] = 8 * (number_of_func_params + 1);
         return data;
     };
     

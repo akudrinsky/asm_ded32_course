@@ -14,7 +14,6 @@ print:
 	pop rax
 	push rsi
 	add rsi, 9
-  	mov ebx, 10   
 .next_digit:
   	xor edx, edx       
   	div ebx

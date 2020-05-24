@@ -231,7 +231,7 @@ cell* tokenize (char* str, const int max_nodes_number) {
                         str += 5;
                     }
                     else if (strncmp (str, "worse", 5) == 0) {
-                        nodes[n_nodes].type = IS_LESS;
+                        nodes[n_nodes].type = IS_BIGGER;
                         strncpy (data, "worse", default_size);
                         str += 5;
                     }
@@ -298,7 +298,7 @@ cell* tokenize (char* str, const int max_nodes_number) {
                 }
                 case 'b': {
                     if (strncmp (str, "better", 6) == 0) {
-                        nodes[n_nodes].type = IS_BIGGER;
+                        nodes[n_nodes].type = IS_LESS;
                         strncpy (data, "better", default_size);
                         str += 6;
                     }

@@ -10,6 +10,7 @@ struct b_end {
     
     unsigned char* code = nullptr;
     static const int register_size = 8;
+    const int precision;
     
     uint32_t len = 0;
     uint32_t max_len = 1000;
@@ -20,7 +21,7 @@ struct b_end {
 
     b_end () = delete;
     
-    explicit b_end (node* root);
+    explicit b_end (node* root, int precision);
     ~b_end ();
     
     void write (const unsigned char cmd[], const int cmd_len);    //
@@ -56,6 +57,6 @@ struct b_end {
     void fill_labels ();
 };
 
-bool backend (node* nd, const char* program_name = "backend_program.txt");
+bool backend (node* nd, const char* program_name = "my.out", int precision = 0);
 
 #endif

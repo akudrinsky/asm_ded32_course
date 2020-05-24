@@ -10,7 +10,7 @@
 #include "../headers/backend.h"
 #include "../headers/x86_commands.hpp"
 
-b_end::b_end (node *root) {
+b_end::b_end (node *root, int precision) : precision (precision) {
     code = new unsigned char[max_len];
     main_nd = root;
     cond_number = 0;
@@ -197,6 +197,9 @@ bool b_end::func_return (node *nd) {
         //fprintf (dist, "pushm [ax+%d]\n", local_vars->search_name (nd->right->data));
         //pushm (local_vars->search_name (nd->right->data));
         write (commands::mov_rax_qword_rbp (reg_name (nd->right)), commands::mov_rax_qword_rbp_size);
+    }
+    else if (nd->is_right() && nd->right->type == NUMBER) {
+        write (commands::mov_rax (atoi (nd->right->data)), commands::mov_rax_size);
     }
     
     //write ("\npushr ax\npush 5\nsub\npopr ax\n\nret\n");
@@ -753,8 +756,8 @@ void b_end::fill_labels () {
     }
 }
 
-bool backend (node* nd, const char* program_name) {
-    b_end nds = b_end (nd);
+bool backend (node* nd, const char* program_name, int precision) {
+    b_end nds = b_end (nd, precision);
     //nds.write ("call reign\nend\n\n");
     bool were_problems = false;
     try {
@@ -765,6 +768,6 @@ bool backend (node* nd, const char* program_name) {
     
     nds.fill_labels ();
     
-    make_file ("try1", nds.code, nds.len);
+    make_file (program_name, nds.code, nds.len);
     return were_problems;
 }

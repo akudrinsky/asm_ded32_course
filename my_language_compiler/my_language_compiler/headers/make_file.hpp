@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DBG
+//#define DBG
 
 #ifdef DBG
     #define ON_DEBUG(text) text;

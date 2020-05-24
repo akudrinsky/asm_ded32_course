@@ -16,26 +16,34 @@
 #include <iostream>
 
 int main (int argc, const char* argv[]) {
-    /*
     if (argc == 1) {
         printf ("Mylang error: should enter at least name of file to compile\n");
+        return 0;
     }
-     */
-    
-    node* nd = rec_descent ();
-    nd->photo ();
-    
-    backend (nd);
-    
-    /*
-    char* code = new char[10];
-    strncpy (code, (char*)commands::push_rax, commands::push_rax_size);
-    strncpy (code + commands::push_rax_size, (char*)commands::pop_rax, commands::pop_rax_size);
-    
-    make_file ("try1", (char*)commands::push_rax, commands::push_rax_size);
-    
-    delete [] code;
-     */
+    else if (argc == 2) {
+        node* nd = rec_descent (argv[1]);
+        nd->photo ();
+        
+        backend (nd);
+    }
+    else if (argc == 4) {
+        if (strncmp (argv[2], "-o", 2)) {
+            node* nd = rec_descent (argv[1]);
+            nd->photo ();
+            
+            backend (nd, argv[3]);
+        }
+        else if (strncmp (argv[2], "-p", 2)) {
+            node* nd = rec_descent (argv[1]);
+            nd->photo ();
+            
+            backend (nd, "my.out", atoi (argv[3]));
+        }
+        else {
+            printf ("Mylang error: unknown compile option: %s\n", argv[2]);
+            return 0;
+        }
+    }
     
     return 0;
 }
