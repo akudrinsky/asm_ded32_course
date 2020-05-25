@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C443763247BB57200951825 /* b_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C443762247BB57200951825 /* b_tree.cpp */; };
 		1C69448C247A3258004C3EF9 /* frontend-1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694485247A3258004C3EF9 /* frontend-1.cpp */; };
 		1C69448D247A3258004C3EF9 /* frontend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694486247A3258004C3EF9 /* frontend.cpp */; };
 		1C69448E247A3258004C3EF9 /* backend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C694487247A3258004C3EF9 /* backend.cpp */; };
@@ -32,6 +33,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1C44375F247BB55800951825 /* b_tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = b_tree.h; sourceTree = "<group>"; };
+		1C443762247BB57200951825 /* b_tree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = b_tree.cpp; sourceTree = "<group>"; };
 		1C6943BB2471674600885A3B /* my_language_compiler */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = my_language_compiler; sourceTree = BUILT_PRODUCTS_DIR; };
 		1C69447D247A3245004C3EF9 /* tokens.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tokens.h; sourceTree = "<group>"; };
 		1C69447E247A3245004C3EF9 /* backend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = backend.h; sourceTree = "<group>"; };
@@ -97,6 +100,7 @@
 			children = (
 				1C9B6C852471858D00AC3929 /* make_file.cpp */,
 				1C694487247A3258004C3EF9 /* backend.cpp */,
+				1C443762247BB57200951825 /* b_tree.cpp */,
 				1C694485247A3258004C3EF9 /* frontend-1.cpp */,
 				1C694486247A3258004C3EF9 /* frontend.cpp */,
 				1C69448A247A3258004C3EF9 /* my_lib.cpp */,
@@ -113,6 +117,7 @@
 			children = (
 				1C9B6C81247169B400AC3929 /* tree.hpp */,
 				1C69447E247A3245004C3EF9 /* backend.h */,
+				1C44375F247BB55800951825 /* b_tree.h */,
 				1C694484247A3245004C3EF9 /* frontend-1.h */,
 				1C694483247A3245004C3EF9 /* frontend.h */,
 				1C69447F247A3245004C3EF9 /* make_file.hpp */,
@@ -181,6 +186,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1C443763247BB57200951825 /* b_tree.cpp in Sources */,
 				1C9B6C872471858E00AC3929 /* make_file.cpp in Sources */,
 				1C69448F247A3258004C3EF9 /* stack.cpp in Sources */,
 				1C694491247A3258004C3EF9 /* my_lib.cpp in Sources */,

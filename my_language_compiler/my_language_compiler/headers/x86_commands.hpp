@@ -17,8 +17,9 @@
 /* Every jump is considered to be rel 32 */
 
 #include <map>
+#include "b_tree.h"
 
-#define cmd(text) write (commands::text, commands::text##_size);
+#define cmd(text) write (commands::text, sizeof (commands::text));
 
 namespace commands {
     struct label {
@@ -46,64 +47,45 @@ namespace commands {
     std::map<char*, unsigned char, compare>  funs_ids;
     
     static constexpr unsigned char  nop[]               = {0x90};
-    static constexpr int            nop_size            = 1;
     
     static constexpr unsigned char  add_rsp_40[]        = {0x48, 0x83, 0xc4, 0x40};
-    static constexpr int            add_rsp_40_size     = 4;
     
     static constexpr unsigned char  ret[]               = {0xC3};
-    static constexpr int            ret_size            = 1;
     
     static constexpr unsigned char  xor_rax_rax[]       = {0x48, 0x31, 0xc0};
-    static constexpr int            xor_rax_rax_size    = 3;
     
     static constexpr unsigned char  xor_rbx_rbx[]       = {0x48, 0x31, 0xdb};
-    static constexpr int            xor_rbx_rbx_size    = 3;
     
     static constexpr unsigned char  xor_rdx_rdx[]       = {0x48, 0x31, 0xd2};
-    static constexpr int            xor_rdx_rdx_size    = 3;
     
     static constexpr unsigned char  add_rax_rbx[]       = {0x48, 0x01, 0xd8};
-    static constexpr int            add_rax_rbx_size    = 3;
     
     static constexpr unsigned char  sub_rax_rbx[]       = {0x48, 0x29, 0xd8};
-    static constexpr int            sub_rax_rbx_size    = 3;
     
     static constexpr unsigned char  idiv_rbx[]          = {0x48, 0x01, 0xd8}; /* Signed divide RDX:RAX by rbx, with result stored in RAX ← Quotient, RDX ← Remainder. */
-    static constexpr int            idiv_rbx_size       = 3;
     
     static constexpr unsigned char  inc_rax[]           = {0x48, 0xff, 0xc0};
-    static constexpr int            inc_rax_size        = 3;
     
     static constexpr unsigned char  dec_rax[]           = {0x48, 0xff, 0xc8};
-    static constexpr int            dec_rax_size        = 3;
     
     static constexpr unsigned char  imul_rax_rbx[]      = {0x48, 0x0f, 0xaf, 0xc3};
-    static constexpr int            imul_rax_rbx_size   = 4;
     
     static constexpr unsigned char  push_rax[]          = {0x50};
-    static constexpr int            push_rax_size       = 1;
     
     static constexpr unsigned char  push_rbx[]          = {0x53};
-    static constexpr int            push_rbx_size       = 1;
     
     static constexpr unsigned char  pop_rax[]           = {0x58};
-    static constexpr int            pop_rax_size        = 1;
-    
+
     static constexpr unsigned char  pop_rbx[]           = {0x5b};
-    static constexpr int            pop_rbx_size        = 1;
     
     static constexpr unsigned char  pop_rbp[]           = {0x5d};
-    static constexpr int            pop_rbp_size        = 1;
     
     static constexpr unsigned char  cmp_rax_rbx[]       = {0x48, 0x39, 0xd8};
-    static constexpr int            cmp_rax_rbx_size    = 3;
     
     static constexpr unsigned char  end_programm[]      = {
         0xb8, 0x01, 0x00, 0x00, 0x02,   // mov rax, 0x2000001
         0xbf, 0x00, 0x00, 0x00, 0x00,   // mov rdi, 0
         0x0f, 0x05};                    // syscall
-    static constexpr int            end_programm_size   = 12;
     
     static constexpr unsigned char  out[] = {
         0x58,                           // pop    rax
@@ -124,7 +106,6 @@ namespace commands {
         0xba, 0x08, 0x00, 0x00, 0x00,   // mov    edx, 8
         0x0f, 0x05,                     // syscall
         0x5e};                          // pop    rsi
-    static constexpr int            out_size    = 48;
     
     static constexpr int            ja_size             = 6;
     static constexpr int            jae_size            = 6;
