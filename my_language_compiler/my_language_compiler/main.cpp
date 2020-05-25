@@ -27,13 +27,13 @@ int main (int argc, const char* argv[]) {
         backend (nd);
     }
     else if (argc == 4) {
-        if (strncmp (argv[2], "-o", 2)) {
+        if (strncmp (argv[2], "-o", 2) == 0) {
             node* nd = rec_descent (argv[1]);
             nd->photo ();
             
             backend (nd, argv[3]);
         }
-        else if (strncmp (argv[2], "-p", 2)) {
+        else if (strncmp (argv[2], "-p", 2) == 0) {
             node* nd = rec_descent (argv[1]);
             nd->photo ();
             
@@ -44,7 +44,16 @@ int main (int argc, const char* argv[]) {
             return 0;
         }
     }
-    
+    else if (argc == 6) {
+        node* nd = rec_descent (argv[1]);
+        nd->photo ();
+        
+        backend (nd, argv[3], atoi (argv[5]));
+    }
+    else {
+        printf ("Mylang error: problems with compile options. Now the syntax must be like:\n\t./my_language_compiler <name of file to compile> -o <output file name> -p <precision (power of 2)>\n");
+    }
+
     return 0;
 }
 

@@ -21,7 +21,7 @@ struct b_end {
 
     b_end () = delete;
     
-    explicit b_end (node* root, int precision);
+    explicit b_end (node* root, int precision = 0);
     ~b_end ();
     
     void write (const unsigned char cmd[], const int cmd_len);    //

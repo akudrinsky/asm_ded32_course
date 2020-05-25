@@ -199,7 +199,7 @@ bool b_end::func_return (node *nd) {
         write (commands::mov_rax_qword_rbp (reg_name (nd->right)), commands::mov_rax_qword_rbp_size);
     }
     else if (nd->is_right() && nd->right->type == NUMBER) {
-        write (commands::mov_rax (atoi (nd->right->data)), commands::mov_rax_size);
+        write (commands::mov_rax (atoi (nd->right->data) * (1 << precision)), commands::mov_rax_size);
     }
     
     //write ("\npushr ax\npush 5\nsub\npopr ax\n\nret\n");
@@ -579,7 +579,7 @@ bool b_end::push (node *nd) {
          */
     }
     else if (nd->type == NUMBER) {
-        write (commands::push_num (atoi (nd->data)), commands::push_num_size);
+        write (commands::push_num (atoi (nd->data) * (1 << precision)), commands::push_num_size);
         //write ("push ", nd->data, "\n");
     }
     else {
@@ -723,6 +723,10 @@ bool b_end::equation (node *nd) {
         case MULT: {
             cmd (pop_rbx)
             cmd (pop_rax)
+            if (precision != 0) {
+                write (commands::sar_rax (precision / 2), commands::sar_rax_size);
+                write (commands::sar_rbx ((precision + 1)/ 2), commands::sar_rbx_size);
+            }
             cmd (imul_rax_rbx)
             cmd (push_rax)
             //write ("mul\n");
@@ -731,6 +735,10 @@ bool b_end::equation (node *nd) {
         case DIVIDE: {
             cmd (pop_rbx)
             cmd (pop_rax)
+            if (precision != 0) {
+                write (commands::imul_rax (1 << precision), commands::imul_rax_size);
+                write (commands::sar_rbx ((precision + 1)/ 2), commands::sar_rbx_size);
+            }
             cmd (idiv_rbx)
             cmd (push_rax)
             //write ("div\n");

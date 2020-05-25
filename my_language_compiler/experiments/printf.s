@@ -11,6 +11,12 @@ start:
 	mov rax, qword [rbp - 18]
 	
 print:
+    imul rax, 256
+    imul rbx, 256
+
+    sar rax, 7
+    sar rbx, 7
+
 	pop rax
 	push rsi
 	add rsi, 9

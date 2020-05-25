@@ -220,6 +220,34 @@ namespace commands {
     };
     static constexpr int push_num_size = 5;
     
+    unsigned const char* sar_rax (unsigned char number) {
+        static unsigned char data[] = {0x48, 0xc1, 0xf8, 0x00};
+        data[3] = number;
+        return data;
+    };
+    static constexpr int sar_rax_size = 4;
+    
+    unsigned const char* sar_rbx (unsigned char number) {
+        static unsigned char data[] = {0x48, 0xc1, 0xfb, 0x00};
+        data[3] = number;
+        return data;
+    };
+    static constexpr int sar_rbx_size = 4;
+    
+    unsigned const char* imul_rax (uint32_t number) {
+        static unsigned char data[] = {0x48, 0x69, 0xc0, 0x00, 0x00, 0x00, 0x00};
+        data[3] = number;
+        return data;
+    };
+    static constexpr int imul_rax_size = 7;
+    
+    unsigned const char* imul_rbx (uint32_t number) {
+        static unsigned char data[] = {0x48, 0x69, 0xd0, 0x00, 0x00, 0x00, 0x00};
+        data[3] = number;
+        return data;
+    };
+    static constexpr int imul_rbx_size = 7;
+    
     unsigned const char* init_frame (unsigned char number_of_func_params) {
         static unsigned char data[] = {
             0x55,                               // push rbp
