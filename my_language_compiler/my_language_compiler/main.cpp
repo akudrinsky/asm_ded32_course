@@ -10,7 +10,6 @@
 #include "headers/tree.hpp"
 #include "headers/frontend-1.h"
 #include "headers/make_file.hpp"
-//#include "x86_commands.hpp"
 #include "string.h"
 
 #include <iostream>
