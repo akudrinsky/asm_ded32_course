@@ -1,9 +1,5 @@
 //‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
-//! Sorts lines of a russian masterpiece Evgeny Onegin written by Alexandr Pushkin
-//!
-//! @param [in] input.txt - text file
-//! @param [out] output.txt - tet file, in which lines of input.txt are sorted
-//!
+//! Several function to work with text and files
 //‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 
 #ifndef ADD_BETTER_ONEGIN
