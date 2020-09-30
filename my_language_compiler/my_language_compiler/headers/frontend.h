@@ -6,6 +6,7 @@
 
 #define flag printf ("\033[32;1m flag \033[0m\n\n");
 
+// This structure creates abstract syntax tree from array of tokens
 struct frontend {
     cell* nds;
 
