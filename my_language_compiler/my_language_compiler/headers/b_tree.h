@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+// Basic b-tree class
 template<typename T, const int min_degree, class compare = std::less<T> >
 class B_tree {
 private:
