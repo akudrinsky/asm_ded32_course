@@ -51,6 +51,7 @@ struct unixthread {
     
 };
 
+// This function creates MachO executable from executable code and pre-build header of Macho format
 void make_file (const char* filename, const unsigned char* code, uint64_t len);
 
 #endif /* make_file_hpp */
