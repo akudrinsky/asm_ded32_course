@@ -8,7 +8,7 @@
 #define error(code) fprintf(for_errors,"front_rev::%s (%s)\n", __PRETTY_FUNCTION__, #code);\
                     return false;
 
-
+// front_rev is able to construct program text from abstract syntax tree, accordingly to its format
 struct front_rev {
     node* root;
     FILE* dist;
