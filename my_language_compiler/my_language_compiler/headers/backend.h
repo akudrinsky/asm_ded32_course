@@ -4,10 +4,8 @@
 #include "tree.hpp"
 #include "make_file.hpp"
 
+// This structure creates executable code from syntax tree
 struct b_end {
-    //FILE*       dist;
-    //void write (const char* cmd, const char* cmd1 = "", const char* cmd2 = "") {}
-    
     unsigned char* code = nullptr;
     static const int register_size = 8;
     const int precision;
